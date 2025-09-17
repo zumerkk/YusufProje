@@ -48,9 +48,9 @@ const packages: Package[] = [
     id: 'okul-destek',
     name: 'Okul Destek Paketi',
     subtitle: '5-6-7. Sınıflar',
-    price: 30,
-    originalPrice: 45,
-    duration: 'aylık',
+    price: 30000,
+    originalPrice: 45000,
+    duration: 'yıllık',
     description: 'Okul derslerinde başarıyı garantileyen kapsamlı destek programı',
     targetAudience: '5., 6., 7. sınıf öğrencileri için özel tasarlanmıştır',
     weeklyLessons: 'Haftada 8 canlı ders',
@@ -83,9 +83,9 @@ const packages: Package[] = [
     id: 'lgs-destek',
     name: 'LGS Destek Paketi',
     subtitle: '8. Sınıf LGS Hazırlık',
-    price: 35,
-    originalPrice: 55,
-    duration: 'aylık', 
+    price: 35000,
+    originalPrice: 55000,
+    duration: 'yıllık', 
     description: 'LGS\'de hedeflenen puanın üstüne çıkmak için tam kapsamlı hazırlık programı',
     targetAudience: '8. sınıf öğrencileri için LGS\'ye özel hazırlanmış yoğun program',
     weeklyLessons: 'Haftada 10 canlı ders',
@@ -118,12 +118,6 @@ const packages: Package[] = [
   }
 ];
 
-const stats = [
-  { number: '1000+', label: 'Başarılı Öğrenci', icon: <Users className="w-6 h-6" /> },
-  { number: '50+', label: 'Uzman Öğretmen', icon: <GraduationCap className="w-6 h-6" /> },
-  { number: '95%', label: 'Başarı Oranı', icon: <TrendingUp className="w-6 h-6" /> },
-  { number: '24/7', label: 'Destek', icon: <MessageSquare className="w-6 h-6" /> }
-];
 
 const testimonials = [
   {
@@ -171,24 +165,6 @@ const Packages: React.FC = () => {
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-400 to-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float" style={{animationDelay: '2s'}}></div>
       </div>
 
-      {/* Stats Section */}
-      <div className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center group">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <div className="text-white">
-                    {stat.icon}
-                  </div>
-                </div>
-                <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">{stat.number}</div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Packages Section */}
       <div className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
@@ -242,18 +218,21 @@ const Packages: React.FC = () => {
                     <div className="mb-6">
                       <div className="flex items-center justify-center mb-2">
                         <span className={`text-5xl font-bold bg-gradient-to-r ${pkg.gradient} bg-clip-text text-transparent`}>
-                          {pkg.price}₺
+                          {pkg.price.toLocaleString('tr-TR')}₺
                         </span>
                         <span className="text-gray-600 ml-2 text-lg">/{pkg.duration}</span>
                       </div>
                       {pkg.originalPrice && (
                         <div className="text-center">
-                          <span className="text-xl text-gray-400 line-through mr-2">{pkg.originalPrice}₺</span>
+                          <span className="text-xl text-gray-400 line-through mr-2">{pkg.originalPrice.toLocaleString('tr-TR')}₺</span>
                           <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
                             %{Math.round((1 - pkg.price / pkg.originalPrice) * 100)} İNDİRİM
                           </span>
                         </div>
                       )}
+                      <div className="text-center mt-2">
+                        <span className="text-sm text-blue-600 font-semibold">12 aya varan taksit imkanı</span>
+                      </div>
                     </div>
 
                     {/* Target Audience */}
@@ -304,9 +283,6 @@ const Packages: React.FC = () => {
                     <div className="absolute inset-0 bg-white opacity-20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                   </Link>
                   
-                  <div className="text-center mt-4">
-                    <span className="text-xs text-gray-500">14 gün para iade garantisi</span>
-                  </div>
                 </div>
               </div>
             ))}
@@ -356,22 +332,14 @@ const Packages: React.FC = () => {
             hedefinize ulaşmanız için buradayız.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex justify-center">
             <Link
               to="/register"
               className="bg-white text-purple-600 px-8 py-4 rounded-2xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 inline-flex items-center"
             >
-              Ücretsiz Deneme Başlat
+              Atlas'la Maceraya Başla
               <ChevronRight className="w-5 h-5 ml-2" />
             </Link>
-            
-            <div className="text-white">
-              <div className="flex items-center justify-center mb-2">
-                <Sparkles className="w-5 h-5 mr-2 text-yellow-300" />
-                <span className="font-semibold">İlk 7 Gün Ücretsiz!</span>
-              </div>
-              <div className="text-sm text-purple-200">Kredi kartı gerektirmez</div>
-            </div>
           </div>
         </div>
       </div>

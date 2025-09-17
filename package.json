@@ -11,7 +11,9 @@
     "check": "tsc --noEmit",
     "server:dev": "nodemon",
     "dev": "concurrently \"npm run client:dev\" \"npm run server:dev\"",
-    "vercel-build": "npm run build"
+    "vercel-build": "npm run build",
+    "start": "node api/server.js",
+    "render-build": "npm install && npm run build"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

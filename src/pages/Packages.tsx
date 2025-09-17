@@ -279,7 +279,7 @@ const Packages: React.FC = () => {
                     to={`/register?package=${pkg.id}`}
                     className={`w-full block text-center py-4 px-8 rounded-2xl font-bold text-lg text-white bg-gradient-to-r ${pkg.gradient} hover:shadow-lg hover:scale-105 transition-all duration-300 relative overflow-hidden group`}
                   >
-                    <span className="relative z-10">Hemen Başla</span>
+                    <span className="relative z-10">Atlas'la Maceraya Başla</span>
                     <div className="absolute inset-0 bg-white opacity-20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                   </Link>
                   

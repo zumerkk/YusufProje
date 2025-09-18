@@ -83,67 +83,87 @@ interface StudySession {
 const mockCourses: Course[] = [
   {
     id: 1,
-    title: 'Matematik Temelleri',
+    title: 'Matematik',
     subject: 'Matematik',
-    teacher: 'Ahmet Yılmaz',
+    teacher: 'Uzman Öğretmen',
     progress: 75,
     totalLessons: 20,
     completedLessons: 15,
-    nextLesson: 'Türev Uygulamaları',
+    nextLesson: 'Cebirsel İfadeler',
     nextLessonTime: '14:00',
-    thumbnail: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Mathematics%20textbook%20cover%2C%20geometric%20shapes%2C%20equations%2C%20blue%20and%20orange%20colors&image_size=landscape_4_3',
+    thumbnail: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=400&h=300&fit=crop&crop=center',
     difficulty: 'Orta'
   },
   {
     id: 2,
-    title: 'Fizik Mekaniği',
-    subject: 'Fizik',
-    teacher: 'Mehmet Kaya',
+    title: 'Fen Bilimleri',
+    subject: 'Fen Bilimleri',
+    teacher: 'Uzman Öğretmen',
     progress: 60,
     totalLessons: 18,
     completedLessons: 11,
-    nextLesson: 'Newton Yasaları',
+    nextLesson: 'Vücudumuzda Sistemler',
     nextLessonTime: '16:30',
-    thumbnail: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Physics%20laboratory%20equipment%2C%20pendulum%2C%20formulas%2C%20scientific%20illustration&image_size=landscape_4_3',
-    difficulty: 'Zor'
+    thumbnail: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=400&h=300&fit=crop&crop=center',
+    difficulty: 'Orta'
   },
   {
     id: 3,
-    title: 'Kimya Temelleri',
-    subject: 'Kimya',
-    teacher: 'Ayşe Demir',
-    progress: 90,
-    totalLessons: 15,
+    title: 'Türkçe',
+    subject: 'Türkçe',
+    teacher: 'Uzman Öğretmen',
+    progress: 85,
+    totalLessons: 16,
     completedLessons: 14,
-    nextLesson: 'Organik Kimya Giriş',
+    nextLesson: 'Metin Türleri',
     nextLessonTime: '10:00',
-    thumbnail: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Chemistry%20laboratory%2C%20test%20tubes%2C%20molecular%20structures%2C%20colorful%20reactions&image_size=landscape_4_3',
+    thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&crop=center',
     difficulty: 'Kolay'
+  },
+  {
+    id: 4,
+    title: 'T.C. İnkılap Tarihi ve Atatürkçülük',
+    subject: 'Sosyal Bilimler',
+    teacher: 'Uzman Öğretmen',
+    progress: 70,
+    totalLessons: 14,
+    completedLessons: 10,
+    nextLesson: 'Kurtuluş Savaşı',
+    nextLessonTime: '13:00',
+    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=center',
+    difficulty: 'Orta'
   }
 ];
 
 const mockAssignments: Assignment[] = [
   {
     id: 1,
-    title: 'Türev Problemleri',
+    title: 'Matematik Ödevi',
     subject: 'Matematik',
     dueDate: '2024-01-25',
     status: 'pending'
   },
   {
     id: 2,
-    title: 'Hareket Denklemleri',
-    subject: 'Fizik',
+    title: 'Fen Bilimleri Ödevi',
+    subject: 'Fen Bilimleri',
     dueDate: '2024-01-23',
     status: 'overdue'
   },
   {
     id: 3,
-    title: 'Mol Kavramı Quiz',
-    subject: 'Kimya',
+    title: 'Türkçe Ödevi',
+    subject: 'Türkçe',
     dueDate: '2024-01-20',
     status: 'completed',
     score: 85
+  },
+  {
+    id: 4,
+    title: 'Sosyal Bilimler Ödevi',
+    subject: 'Sosyal Bilimler',
+    dueDate: '2024-01-22',
+    status: 'pending'
   }
 ];
 
@@ -711,7 +731,7 @@ const StudentDashboard: React.FC = () => {
             {[
               { id: 'overview', label: 'Genel Bakış', icon: BarChart3 },
               { id: 'courses', label: 'Derslerim', icon: BookOpen },
-              { id: 'teachers', label: 'Öğretmen Ara', icon: Search },
+              { id: 'teachers', label: 'Öğretmen Ara', icon: Search, disabled: true },
               { id: 'assignments', label: 'Ödevler', icon: CheckCircle },
               { id: 'schedule', label: 'Program', icon: Calendar }
             ].map((tab) => {
@@ -719,11 +739,14 @@ const StudentDashboard: React.FC = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => !tab.disabled && setActiveTab(tab.id)}
+                  disabled={tab.disabled}
                   className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    tab.disabled 
+                      ? 'text-gray-400 cursor-not-allowed opacity-50'
+                      : activeTab === tab.id
+                        ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
@@ -873,7 +896,7 @@ const StudentDashboard: React.FC = () => {
               {/* Recent Courses */}
               <div className="bg-white/80 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Devam Eden Kurslar</h3>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Devam Eden Dersler</h3>
                   <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
                     <BookOpen className="h-5 w-5 text-white" />
                   </div>
@@ -904,7 +927,7 @@ const StudentDashboard: React.FC = () => {
               {/* Recent Achievements */}
               <div className="bg-white/80 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-white/20 hover:shadow-2xl transition-all duration-500">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">Son Başarılar</h3>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">Tamamlanmış Dersler</h3>
                   <div className="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
                     <Award className="h-5 w-5 text-white" />
                   </div>
@@ -987,10 +1010,10 @@ const StudentDashboard: React.FC = () => {
                       >
                         <option value="all">Tüm Dersler</option>
                         <option value="Matematik">Matematik</option>
-                        <option value="Fizik">Fizik</option>
-                        <option value="Kimya">Kimya</option>
+                        <option value="Fen Bilimleri">Fen Bilimleri</option>
+                        <option value="Türkçe">Türkçe</option>
+                        <option value="Sosyal Bilimler">Sosyal Bilimler</option>
                         <option value="İngilizce">İngilizce</option>
-                        <option value="Tarih">Tarih</option>
                       </select>
                       <button className="flex items-center px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-white transition-colors">
                         <Filter className="h-5 w-5 text-gray-500" />
@@ -1019,8 +1042,8 @@ const StudentDashboard: React.FC = () => {
                         <div className="absolute bottom-6 left-6 right-6">
                           <h3 className="text-2xl font-bold text-white mb-2">{lesson.subject}</h3>
                           <div className="flex items-center text-white/90 text-base">
-                            <User className="h-5 w-5 mr-3" />
-                            <span>{lesson.teacher?.user?.full_name || lesson.teacher_name}</span>
+                            <GraduationCap className="h-5 w-5 mr-3" />
+                            <span>Uzman Öğretmen</span>
                           </div>
                         </div>
                         {/* Decorative elements */}
@@ -1463,8 +1486,8 @@ const StudentDashboard: React.FC = () => {
                           <div className="absolute bottom-6 left-6 right-6">
                             <h3 className="text-2xl font-bold text-white mb-2">{lesson.subject}</h3>
                             <div className="flex items-center text-white/90 text-base">
-                              <User className="h-5 w-5 mr-3" />
-                              <span className="font-medium">{lesson.teacher?.user?.full_name || lesson.teacher_name}</span>
+                              <GraduationCap className="h-5 w-5 mr-3" />
+                              <span className="font-medium">Uzman Öğretmen</span>
                             </div>
                           </div>
                           {/* Decorative elements */}

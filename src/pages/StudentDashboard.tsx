@@ -731,7 +731,6 @@ const StudentDashboard: React.FC = () => {
             {[
               { id: 'overview', label: 'Genel Bakış', icon: BarChart3 },
               { id: 'courses', label: 'Derslerim', icon: BookOpen },
-              { id: 'teachers', label: 'Öğretmen Ara', icon: Search, disabled: true },
               { id: 'assignments', label: 'Ödevler', icon: CheckCircle },
               { id: 'schedule', label: 'Program', icon: Calendar }
             ].map((tab) => {
@@ -739,14 +738,11 @@ const StudentDashboard: React.FC = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => !tab.disabled && setActiveTab(tab.id)}
-                  disabled={tab.disabled}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                    tab.disabled 
-                      ? 'text-gray-400 cursor-not-allowed opacity-50'
-                      : activeTab === tab.id
-                        ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    activeTab === tab.id
+                      ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />

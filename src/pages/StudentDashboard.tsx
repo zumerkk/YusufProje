@@ -122,15 +122,28 @@ const mockCourses: Course[] = [
   },
   {
     id: 4,
-    title: 'T.C. İnkılap Tarihi ve Atatürkçülük',
-    subject: 'Sosyal Bilimler',
+    title: 'Sosyal Bilgiler',
+    subject: 'Sosyal Bilgiler',
     teacher: 'Uzman Öğretmen',
-    progress: 70,
-    totalLessons: 14,
-    completedLessons: 10,
-    nextLesson: 'Kurtuluş Savaşı',
-    nextLessonTime: '13:00',
-    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=center',
+    progress: 55,
+    totalLessons: 12,
+    completedLessons: 7,
+    nextLesson: 'Coğrafya ve İklim',
+    nextLessonTime: '15:00',
+    thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center',
+    difficulty: 'Orta'
+  },
+  {
+    id: 5,
+    title: 'Yabancı Dil (İngilizce)',
+    subject: 'İngilizce',
+    teacher: 'Uzman Öğretmen',
+    progress: 40,
+    totalLessons: 15,
+    completedLessons: 6,
+    nextLesson: 'Present Tense',
+    nextLessonTime: '11:30',
+    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center',
     difficulty: 'Orta'
   }
 ];
@@ -462,14 +475,7 @@ const StudentDashboard: React.FC = () => {
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Kolay': return 'text-green-600 bg-green-100';
-      case 'Orta': return 'text-yellow-600 bg-yellow-100';
-      case 'Zor': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
+
 
   const filteredCourses = mockCourses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -827,22 +833,16 @@ const StudentDashboard: React.FC = () => {
                       </div>
                 </div>
 
-                {/* Study Time Card */}
+                {/* Class Level Card */}
                 <div className="group relative bg-white/70 backdrop-blur-sm p-6 rounded-2xl border border-gray-200/50 hover:bg-white hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <Clock className="h-5 w-5 text-white" />
+                      <GraduationCap className="h-5 w-5 text-white" />
                     </div>
                     <div className="w-2 h-2 bg-green-400 rounded-full opacity-60"></div>
                   </div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Toplam Çalışma</p>
-                  <div className="space-y-2">
-                    <p className="text-lg font-bold text-green-600">{Math.floor(totalStudyTime / 60)}h {totalStudyTime % 60}m</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500" style={{width: `${Math.min((totalStudyTime / 600) * 100, 100)}%`}}></div>
-                    </div>
-                    <p className="text-xs text-gray-500">Hedef: 10 saat</p>
-                  </div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sınıf Seviyesi</p>
+                  <p className="text-lg font-bold text-green-600">7. Sınıf</p>
                 </div>
               </div>
 
@@ -898,13 +898,13 @@ const StudentDashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="space-y-5">
-                  {mockCourses.slice(0, 3).map((course, index) => (
+                  {mockCourses.slice(0, 5).map((course, index) => (
                     <div key={course.id} className="group flex items-center space-x-5 p-4 rounded-2xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-300 hover:scale-105">
                       <div className="relative">
                         <img
                           src={course.thumbnail}
                           alt={course.title}
-                          className="w-16 h-16 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+                          className="w-12 h-12 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-shadow duration-300"
                         />
                         <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                           {index + 1}
@@ -970,15 +970,15 @@ const StudentDashboard: React.FC = () => {
             ) : (
               <>
                 {/* Header Section */}
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white relative overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-6 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
                   <div className="relative">
-                    <h2 className="text-3xl font-bold mb-2">Derslerim</h2>
-                    <p className="text-blue-100 mb-6">Aktif derslerinizi takip edin ve ilerlemenizi görün</p>
+                    <h2 className="text-2xl font-bold mb-2">Derslerim</h2>
+                    <p className="text-blue-100 mb-4">Aktif derslerinizi takip edin ve ilerlemenizi görün</p>
                     <div className="flex items-center justify-center">
                       <div className="text-center">
-                        <div className="text-2xl font-bold">{lessons.length}</div>
+                        <div className="text-xl font-bold">{mockCourses.length}</div>
                         <div className="text-sm text-blue-100">Toplam Ders</div>
                       </div>
                     </div>
@@ -986,23 +986,23 @@ const StudentDashboard: React.FC = () => {
                 </div>
 
                 {/* Enhanced Search and Filter */}
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                  <div className="flex flex-col lg:flex-row gap-4">
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                  <div className="flex flex-col lg:flex-row gap-3">
                     <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
                         type="text"
                         placeholder="Ders, öğretmen veya konu ara..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-12 pr-4 py-3 w-full border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors"
+                        className="pl-10 pr-3 py-2 w-full border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors text-sm"
                       />
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
                       <select
                         value={selectedSubject}
                         onChange={(e) => setSelectedSubject(e.target.value)}
-                        className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors min-w-[150px]"
+                        className="px-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 hover:bg-white transition-colors min-w-[130px] text-sm"
                       >
                         <option value="all">Tüm Dersler</option>
                         <option value="Matematik">Matematik</option>
@@ -1011,110 +1011,56 @@ const StudentDashboard: React.FC = () => {
                         <option value="Sosyal Bilimler">Sosyal Bilimler</option>
                         <option value="İngilizce">İngilizce</option>
                       </select>
-                      <button className="flex items-center px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-white transition-colors">
-                        <Filter className="h-5 w-5 text-gray-500" />
+                      <button className="flex items-center px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl hover:bg-white transition-colors">
+                        <Filter className="h-4 w-4 text-gray-500" />
                       </button>
                     </div>
                   </div>
                 </div>
 
                 {/* Enhanced Lessons Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {lessons.length > 0 ? lessons.map((lesson: any) => (
-                    <div key={lesson.id} className="group bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-500">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {mockCourses.map((course) => (
+                    <div key={course.id} className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                       {/* Course Image/Header */}
-                      <div className="relative h-56 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
-                        <div className="absolute inset-0 bg-black/20"></div>
-                        <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
-                          <span className={`px-4 py-2 text-sm font-semibold rounded-full backdrop-blur-sm ${
-                            lesson.status === 'completed' ? 'bg-green-500/90 text-white' :
-                            lesson.status === 'scheduled' ? 'bg-blue-500/90 text-white' :
-                            'bg-yellow-500/90 text-white'
-                          }`}>
-                            {lesson.status === 'completed' ? 'Tamamlandı' :
-                             lesson.status === 'scheduled' ? 'Planlandı' : 'Beklemede'}
-                          </span>
-                        </div>
-                        <div className="absolute bottom-6 left-6 right-6">
-                          <h3 className="text-2xl font-bold text-white mb-2">{lesson.subject}</h3>
-                          <div className="flex items-center text-white/90 text-base">
-                            <GraduationCap className="h-5 w-5 mr-3" />
-                            <span>Uzman Öğretmen</span>
+                      <div className="relative h-32 bg-gradient-to-br from-blue-500 to-purple-600 overflow-hidden">
+                        <img
+                          src={course.thumbnail}
+                          alt={course.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40"></div>
+
+                        <div className="absolute bottom-3 left-3 right-3">
+                          <h3 className="text-base font-bold text-white mb-1">{course.title}</h3>
+                          <div className="flex items-center text-white/90 text-sm">
+                            <GraduationCap className="h-4 w-4 mr-2" />
+                            <span>{course.teacher}</span>
                           </div>
                         </div>
-                        {/* Decorative elements */}
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-12 -translate-y-12"></div>
-                        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full transform -translate-x-10 translate-y-10"></div>
                       </div>
 
                       {/* Course Content */}
-                      <div className="p-8">
-                        {/* Date and Time */}
-                        <div className="flex items-center justify-between mb-6">
-                          <div className="flex items-center text-gray-600">
-                            <Calendar className="h-5 w-5 mr-3" />
-                            <span className="text-base font-medium">
-                              {new Date(lesson.date_time || lesson.scheduled_at).toLocaleDateString('tr-TR', {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric'
-                              })}
-                            </span>
+                      <div className="p-4">
+
+
+                        {/* Next Lesson */}
+                        <div className="mb-3">
+                          <div className="flex items-center text-gray-600 mb-1">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span className="text-xs font-medium">Sonraki Ders</span>
                           </div>
-                          <div className="flex items-center text-gray-600">
-                            <Clock className="h-5 w-5 mr-3" />
-                            <span className="text-base font-medium">
-                              {new Date(lesson.date_time || lesson.scheduled_at).toLocaleTimeString('tr-TR', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </span>
-                          </div>
+                          <p className="text-xs text-gray-800 font-semibold">{course.nextLesson}</p>
+                          <p className="text-xs text-gray-500">{course.nextLessonTime}</p>
                         </div>
 
-
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-4">
-                          <button 
-                            onClick={() => handleLessonDetails(lesson.id)}
-                            disabled={buttonLoading === `lesson-${lesson.id}`}
-                            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {buttonLoading === `lesson-${lesson.id}` ? (
-                              <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                            ) : (
-                              <MessageSquare className="h-5 w-5 mr-3" />
-                            )}
-                            Detaylar
-                          </button>
-                          {lesson.status === 'scheduled' && (
-                            <button className="px-6 py-4 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-300 hover:border-gray-400">
-                              <Calendar className="h-5 w-5" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )) : (
-                    <div className="col-span-full">
-                      <div className="text-center py-16 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                          <BookOpen className="h-10 w-10 text-gray-400" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Henüz ders kaydınız yok</h3>
-                        <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                          Öğretmenlerimizle tanışın ve ilk dersinizi planlayın. Öğrenme yolculuğunuz burada başlıyor!
-                        </p>
-                        <button 
-                          onClick={() => setActiveTab('teachers')}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium"
-                        >
-                          Öğretmen Ara
+                        {/* Action Button */}
+                        <button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-3 rounded-lg text-xs font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-300 hover:shadow-lg">
+                          Derse Devam Et
                         </button>
                       </div>
                     </div>
-                  )}
+                  ))}
                 </div>
 
 
@@ -1139,15 +1085,15 @@ const StudentDashboard: React.FC = () => {
             ) : (
               <>
                 {/* Header Section */}
-                <div className="bg-white/80 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-white/20">
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center">
-                        <Users className="h-8 w-8 text-white" />
+                <div className="bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/20">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-xl flex items-center justify-center">
+                        <Users className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">Öğretmenlerim</h2>
-                        <p className="text-gray-600 font-medium text-lg">Uzman öğretmenlerimizle tanışın ve ders planlayın</p>
+                        <h2 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent">Öğretmenlerim</h2>
+                        <p className="text-gray-600 font-medium text-base">Uzman öğretmenlerimizle tanışın ve ders planlayın</p>
                       </div>
                     </div>
                   </div>
@@ -1160,7 +1106,7 @@ const StudentDashboard: React.FC = () => {
                       placeholder="Öğretmen adı, uzmanlık alanı veya konu ara..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-14 pr-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium text-lg"
+                      className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-green-100 focus:border-green-500 transition-all duration-300 bg-white/80 backdrop-blur-sm font-medium text-base"
                     />
                   </div>
                 </div>
@@ -1174,15 +1120,15 @@ const StudentDashboard: React.FC = () => {
                         <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full transform translate-x-10 -translate-y-10"></div>
                         <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full transform -translate-x-8 translate-y-8"></div>
                         
-                        <div className="relative flex items-center space-x-4 mb-4">
-                          <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                            <User className="h-8 w-8 text-white" />
+                        <div className="relative flex items-center space-x-3 mb-3">
+                          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                            <User className="h-6 w-6 text-white" />
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-xl font-bold text-white mb-1">{teacher.user?.full_name || teacher.full_name}</h3>
-                            <p className="text-green-100 text-sm font-medium">{teacher.user?.email || teacher.email}</p>
+                            <h3 className="text-lg font-bold text-white mb-1">{teacher.user?.full_name || teacher.full_name}</h3>
+                            <p className="text-green-100 text-xs font-medium">{teacher.user?.email || teacher.email}</p>
                           </div>
-                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xs">
                             {index + 1}
                           </div>
                         </div>
@@ -1199,17 +1145,17 @@ const StudentDashboard: React.FC = () => {
                       </div>
 
                       {/* Teacher Content */}
-                      <div className="p-8">
+                      <div className="p-6">
                         {/* Subjects */}
                         {teacher.subjects && teacher.subjects.length > 0 && (
-                          <div className="mb-6">
-                            <p className="text-gray-700 font-bold mb-3 flex items-center">
-                              <BookOpen className="h-5 w-5 mr-2 text-green-600" />
+                          <div className="mb-4">
+                            <p className="text-gray-700 font-bold mb-2 flex items-center">
+                              <BookOpen className="h-4 w-4 mr-2 text-green-600" />
                               Uzmanlık Alanları:
                             </p>
                             <div className="flex flex-wrap gap-2">
                               {teacher.subjects.map((subject: string, index: number) => (
-                                <span key={index} className="px-4 py-2 text-sm bg-gradient-to-r from-green-100 to-teal-100 text-green-700 rounded-xl font-semibold border border-green-200 hover:from-green-200 hover:to-teal-200 transition-colors duration-300">
+                                <span key={index} className="px-3 py-1 text-xs bg-gradient-to-r from-green-100 to-teal-100 text-green-700 rounded-lg font-semibold border border-green-200 hover:from-green-200 hover:to-teal-200 transition-colors duration-300">
                                   {subject}
                                 </span>
                               ))}
@@ -1218,40 +1164,40 @@ const StudentDashboard: React.FC = () => {
                         )}
                         
                         {/* Stats */}
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border border-blue-200">
-                            <div className="text-2xl font-bold text-blue-600">{Math.floor(Math.random() * 50) + 20}</div>
-                            <div className="text-sm text-blue-600 font-medium">Tamamlanan Ders</div>
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                            <div className="text-lg font-bold text-blue-600">{Math.floor(Math.random() * 50) + 20}</div>
+                            <div className="text-xs text-blue-600 font-medium">Tamamlanan Ders</div>
                           </div>
-                          <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl border border-purple-200">
-                            <div className="text-2xl font-bold text-purple-600">{Math.floor(Math.random() * 5) + 3} yıl</div>
-                            <div className="text-sm text-purple-600 font-medium">Deneyim</div>
+                          <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                            <div className="text-lg font-bold text-purple-600">{Math.floor(Math.random() * 5) + 3} yıl</div>
+                            <div className="text-xs text-purple-600 font-medium">Deneyim</div>
                           </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <button 
                             onClick={() => handleScheduleLesson(teacher.id)}
                             disabled={buttonLoading === `schedule-${teacher.id}`}
-                            className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-4 px-6 rounded-2xl hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center font-bold shadow-lg hover:shadow-xl group-hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-3 px-4 rounded-xl hover:from-green-700 hover:to-teal-700 transition-all duration-300 flex items-center justify-center font-bold shadow-lg hover:shadow-xl group-hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {buttonLoading === `schedule-${teacher.id}` ? (
-                              <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                             ) : (
-                              <MessageSquare className="h-5 w-5 mr-3" />
+                              <MessageSquare className="h-4 w-4 mr-2" />
                             )}
                             Ders Planla
                           </button>
                           <button 
                             onClick={() => handleViewProfile(teacher.id)}
                             disabled={buttonLoading === `profile-${teacher.id}`}
-                            className="w-full bg-white border-2 border-green-200 text-green-600 py-3 px-6 rounded-2xl hover:bg-green-50 hover:border-green-300 transition-all duration-300 flex items-center justify-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full bg-white border-2 border-green-200 text-green-600 py-2 px-4 rounded-xl hover:bg-green-50 hover:border-green-300 transition-all duration-300 flex items-center justify-center font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {buttonLoading === `profile-${teacher.id}` ? (
-                              <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                             ) : (
-                              <User className="h-5 w-5 mr-3" />
+                              <User className="h-4 w-4 mr-2" />
                             )}
                             Profili Görüntüle
                           </button>
@@ -1281,23 +1227,23 @@ const StudentDashboard: React.FC = () => {
         {activeTab === 'assignments' && (
           <div className="space-y-8">
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-3xl p-8 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
+            <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 text-white relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-12 -translate-y-12"></div>
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full transform -translate-x-10 translate-y-10"></div>
               <div className="relative">
-                <h2 className="text-3xl font-bold mb-2">Verilen Ödevler</h2>
-                <p className="text-purple-100 mb-6">Ödevlerinizi takip edin ve zamanında teslim edin</p>
-                <div className="flex items-center space-x-8">
+                <h2 className="text-2xl font-bold mb-2">Verilen Ödevler</h2>
+                <p className="text-purple-100 mb-4">Ödevlerinizi takip edin ve zamanında teslim edin</p>
+                <div className="flex items-center space-x-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{mockAssignments.length}</div>
+                    <div className="text-xl font-bold">{mockAssignments.length}</div>
                     <div className="text-sm text-purple-100">Toplam Ödev</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{mockAssignments.filter(a => a.status === 'completed').length}</div>
+                    <div className="text-xl font-bold">{mockAssignments.filter(a => a.status === 'completed').length}</div>
                     <div className="text-sm text-purple-100">Tamamlanan</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{mockAssignments.filter(a => a.status === 'pending').length}</div>
+                    <div className="text-xl font-bold">{mockAssignments.filter(a => a.status === 'pending').length}</div>
                     <div className="text-sm text-purple-100">Bekleyen</div>
                   </div>
                 </div>
@@ -1411,37 +1357,37 @@ const StudentDashboard: React.FC = () => {
         {activeTab === 'schedule' && (
           <div className="space-y-8">
             {/* Header Section */}
-            <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-10 text-white overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full transform translate-x-20 -translate-y-20"></div>
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full transform -translate-x-16 translate-y-16"></div>
-              <div className="absolute top-1/2 right-1/4 w-20 h-20 bg-white/5 rounded-full transform -translate-y-1/2"></div>
-              <div className="absolute top-1/4 left-1/3 w-12 h-12 bg-white/5 rounded-full"></div>
+            <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-5 text-white overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-12 -translate-y-12"></div>
+              <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full transform -translate-x-10 translate-y-10"></div>
+              <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-white/5 rounded-full transform -translate-y-1/2"></div>
+              <div className="absolute top-1/4 left-1/3 w-10 h-10 bg-white/5 rounded-full"></div>
               
               <div className="relative flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center mb-6">
-                    <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-sm mr-8">
-                      <Calendar className="h-10 w-10 text-white" />
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm mr-4">
+                      <Calendar className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-5xl font-bold mb-3">Bu Haftaki Programım</h2>
-                      <p className="text-indigo-100 text-xl">Haftalık ders programınızı takip edin ve zamanınızı planlayın</p>
+                      <h2 className="text-2xl font-bold mb-1">Bu Haftaki Programım</h2>
+                      <p className="text-indigo-100 text-sm">Haftalık ders programınızı takip edin ve zamanınızı planlayın</p>
                     </div>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-10">
-                  <div className="text-center p-8 bg-white/20 rounded-3xl backdrop-blur-sm">
-                    <div className="text-4xl font-bold mb-2">{lessons.filter((lesson: any) => lesson.status === 'scheduled').length}</div>
-                    <div className="text-indigo-200 text-base font-medium">Planlanmış Ders</div>
+                <div className="flex items-center space-x-4">
+                  <div className="text-center p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <div className="text-xl font-bold mb-1">{lessons.filter((lesson: any) => lesson.status === 'scheduled').length}</div>
+                    <div className="text-indigo-200 text-xs font-medium">Planlanmış Ders</div>
                   </div>
-                  <div className="text-center p-8 bg-white/20 rounded-3xl backdrop-blur-sm">
-                    <div className="text-4xl font-bold mb-2">{new Set(lessons.filter((lesson: any) => lesson.status === 'scheduled').map((lesson: any) => lesson.subject)).size}</div>
-                    <div className="text-indigo-200 text-base font-medium">Farklı Konu</div>
+                  <div className="text-center p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <div className="text-xl font-bold mb-1">{new Set(lessons.filter((lesson: any) => lesson.status === 'scheduled').map((lesson: any) => lesson.subject)).size}</div>
+                    <div className="text-indigo-200 text-xs font-medium">Farklı Konu</div>
                   </div>
-                  <div className="text-center p-8 bg-white/20 rounded-3xl backdrop-blur-sm">
-                    <div className="text-4xl font-bold mb-2">5</div>
-                    <div className="text-indigo-200 text-base font-medium">Aktif Gün</div>
+                  <div className="text-center p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                    <div className="text-xl font-bold mb-1">5</div>
+                    <div className="text-indigo-200 text-xs font-medium">Aktif Gün</div>
                   </div>
                 </div>
               </div>
@@ -1467,42 +1413,42 @@ const StudentDashboard: React.FC = () => {
                     const gradient = gradients[index % gradients.length];
                     
                     return (
-                      <div key={lesson.id} className="group bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500">
+                      <div key={lesson.id} className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300">
                         {/* Course Header */}
-                        <div className={`relative h-48 bg-gradient-to-br ${gradient} overflow-hidden`}>
+                        <div className={`relative h-24 bg-gradient-to-br ${gradient} overflow-hidden`}>
                           <div className="absolute inset-0 bg-black/10"></div>
-                          <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
-                            <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                              <BookOpen className="h-6 w-6 text-white" />
+                          <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                            <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                              <BookOpen className="h-3 w-3 text-white" />
                             </div>
-                            <span className="px-4 py-2 text-sm font-semibold rounded-full bg-white/20 text-white backdrop-blur-sm">
+                            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-white/20 text-white backdrop-blur-sm">
                               Planlanmış Ders
                             </span>
                           </div>
-                          <div className="absolute bottom-6 left-6 right-6">
-                            <h3 className="text-2xl font-bold text-white mb-2">{lesson.subject}</h3>
-                            <div className="flex items-center text-white/90 text-base">
-                              <GraduationCap className="h-5 w-5 mr-3" />
+                          <div className="absolute bottom-3 left-3 right-3">
+                            <h3 className="text-base font-bold text-white mb-1">{lesson.subject}</h3>
+                            <div className="flex items-center text-white/90 text-xs">
+                              <GraduationCap className="h-3 w-3 mr-1" />
                               <span className="font-medium">Uzman Öğretmen</span>
                             </div>
                           </div>
                           {/* Decorative elements */}
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full transform translate-x-12 -translate-y-12"></div>
-                          <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full transform -translate-x-10 translate-y-10"></div>
-                          <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-white/5 rounded-full transform -translate-y-1/2"></div>
+                          <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full transform translate-x-8 -translate-y-8"></div>
+                          <div className="absolute bottom-0 left-0 w-12 h-12 bg-white/10 rounded-full transform -translate-x-6 translate-y-6"></div>
+                          <div className="absolute top-1/2 right-1/4 w-6 h-6 bg-white/5 rounded-full transform -translate-y-1/2"></div>
                         </div>
 
                         {/* Course Content */}
-                        <div className="p-8">
+                        <div className="p-4">
                           {/* Date and Time */}
-                          <div className="space-y-4 mb-6">
+                          <div className="space-y-2 mb-3">
                             <div className="flex items-center text-gray-700">
-                              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mr-4">
-                                <Calendar className="h-5 w-5 text-blue-600" />
+                              <div className="w-6 h-6 bg-blue-50 rounded-lg flex items-center justify-center mr-2">
+                                <Calendar className="h-3 w-3 text-blue-600" />
                               </div>
                               <div>
-                                <p className="text-sm text-gray-500 font-medium">Tarih</p>
-                                <p className="text-lg font-bold text-gray-900">
+                                <p className="text-xs text-gray-500 font-medium">Tarih</p>
+                                <p className="text-sm font-bold text-gray-900">
                                   {new Date(lesson.date_time || lesson.scheduled_at).toLocaleDateString('tr-TR', {
                                     day: 'numeric',
                                     month: 'long',
@@ -1513,12 +1459,12 @@ const StudentDashboard: React.FC = () => {
                             </div>
                             
                             <div className="flex items-center text-gray-700">
-                              <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mr-4">
-                                <Clock className="h-5 w-5 text-purple-600" />
+                              <div className="w-6 h-6 bg-purple-50 rounded-lg flex items-center justify-center mr-2">
+                                <Clock className="h-3 w-3 text-purple-600" />
                               </div>
                               <div>
-                                <p className="text-sm text-gray-500 font-medium">Saat</p>
-                                <p className="text-lg font-bold text-gray-900">
+                                <p className="text-xs text-gray-500 font-medium">Saat</p>
+                                <p className="text-sm font-bold text-gray-900">
                                   {new Date(lesson.date_time || lesson.scheduled_at).toLocaleTimeString('tr-TR', {
                                     hour: '2-digit',
                                     minute: '2-digit'
@@ -1529,21 +1475,21 @@ const StudentDashboard: React.FC = () => {
                           </div>
 
                           {/* Action Buttons */}
-                          <div className="flex gap-4">
+                          <div className="flex gap-2">
                             <button 
                               onClick={() => handleLessonDetails(lesson.id)}
                               disabled={buttonLoading === `lesson-${lesson.id}`}
-                              className={`flex-1 bg-gradient-to-r ${gradient} text-white py-4 px-6 rounded-2xl hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold group-hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
+                              className={`flex-1 bg-gradient-to-r ${gradient} text-white py-2 px-3 rounded-lg hover:shadow-lg transition-all duration-300 flex items-center justify-center font-semibold group-hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed`}
                             >
                               {buttonLoading === `lesson-${lesson.id}` ? (
-                                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                               ) : (
-                                <MessageSquare className="h-5 w-5 mr-3" />
+                                <MessageSquare className="h-3 w-3 mr-1" />
                               )}
                               {buttonLoading === `lesson-${lesson.id}` ? 'Yükleniyor...' : 'Detaylar'}
                             </button>
-                            <button className="px-6 py-4 bg-gray-100 text-gray-700 rounded-2xl hover:bg-gray-200 transition-all duration-300 hover:scale-105">
-                              <Calendar className="h-5 w-5" />
+                            <button className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all duration-300 hover:scale-105">
+                              <Calendar className="h-3 w-3" />
                             </button>
                           </div>
                         </div>

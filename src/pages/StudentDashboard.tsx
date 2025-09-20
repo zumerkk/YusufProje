@@ -510,9 +510,16 @@ const StudentDashboard: React.FC = () => {
             {/* Left Section - Logo & Title */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <GraduationCap className="h-6 w-6 text-white" />
-                </div>
+                <Link 
+                  to="/" 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                >
+                  <img 
+                    src="/src/assets/logo-icon.png" 
+                    alt="Ders Atlası Logo" 
+                    className="w-10 h-10 object-contain"
+                  />
+                </Link>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
                     Öğrenci Paneli

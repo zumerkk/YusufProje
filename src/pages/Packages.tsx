@@ -48,7 +48,7 @@ const packages: Package[] = [
     id: 'okul-destek',
     name: 'Atlas Derslik Okul Destek Paketi',
     subtitle: '5-6-7. Sınıflar',
-    price: 30000,
+    price: 29999,
     originalPrice: 45000,
     duration: 'yıllık',
     description: 'Okula ve derslere adaptasyon süreçlerini destekleyen kapsamlı eğitim programı',
@@ -70,7 +70,8 @@ const packages: Package[] = [
       { text: 'Ödev Takip Sistemi', icon: <Target className="w-4 h-4" /> },
       { text: 'Öğrenci Paneli ve İlerleme Takip Sistemi', icon: <TrendingUp className="w-4 h-4" /> },
       { text: 'Ders Kayıtlarına Erişim', icon: <Award className="w-4 h-4" /> },
-      { text: 'Sorumluluk Bilinci Geliştirme', icon: <Sparkles className="w-4 h-4" /> }
+      { text: 'Sorumluluk Bilinci Geliştirme', icon: <Sparkles className="w-4 h-4" /> },
+      { text: 'Akademik Destek Seminerleri', icon: <GraduationCap className="w-4 h-4" /> }
     ],
     popular: false,
     premium: false,
@@ -83,7 +84,7 @@ const packages: Package[] = [
     id: 'lgs-destek',
     name: 'Atlas Derslik LGS Destek Paketi',
     subtitle: '8. Sınıf LGS Hazırlık',
-    price: 35000,
+    price: 34999,
     originalPrice: 55000,
     duration: 'yıllık', 
     description: 'LGS\'de hedeflenen puanın üstüne çıkmak için motivasyon ve sınav kaygısı yönetimi ile desteklenen tam kapsamlı hazırlık programı',
@@ -107,7 +108,8 @@ const packages: Package[] = [
       { text: 'Öğrenci Paneli ve İlerleme Takip Sistemi', icon: <TrendingUp className="w-4 h-4" /> },
       { text: 'Ders Kayıtları ve Gelişim Raporları', icon: <Award className="w-4 h-4" /> },
       { text: 'Motivasyon ve Sınav Kaygısı Yönetimi', icon: <Sparkles className="w-4 h-4" /> },
-      { text: 'Bireysel İhtiyaçlara Odaklanma', icon: <PlayCircle className="w-4 h-4" /> }
+      { text: 'Bireysel İhtiyaçlara Odaklanma', icon: <PlayCircle className="w-4 h-4" /> },
+      { text: 'Akademik Destek Seminerleri', icon: <GraduationCap className="w-4 h-4" /> }
     ],
     popular: true,
     premium: false,

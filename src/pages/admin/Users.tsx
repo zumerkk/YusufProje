@@ -23,7 +23,6 @@ import { Link } from 'react-router-dom';
 
 interface User {
   id: string;
-  full_name: string;
   email: string;
   phone?: string;
   role: 'student' | 'teacher' | 'admin';
@@ -54,17 +53,15 @@ const AdminUsers: React.FC = () => {
   }, [filterRole, searchTerm]);
 
   const loadUsers = async () => {
-    await getUsers({
+    await getUsers(1, 50, {
       role: filterRole === 'all' ? undefined : filterRole,
-      search: searchTerm || undefined,
-      limit: 50
+      search: searchTerm || undefined
     });
   };
 
   const filteredUsers = users
     .filter(user => {
-      const matchesSearch = user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesRole = filterRole === 'all' || user.role === filterRole;
       const matchesStatus = filterStatus === 'all' || user.status === filterStatus;
       return matchesSearch && matchesRole && matchesStatus;
@@ -73,8 +70,8 @@ const AdminUsers: React.FC = () => {
       let aValue, bValue;
       switch (sortBy) {
         case 'name':
-          aValue = a.full_name;
-          bValue = b.full_name;
+          aValue = a.email;
+          bValue = b.email;
           break;
         case 'email':
           aValue = a.email;
@@ -424,7 +421,7 @@ const AdminUsers: React.FC = () => {
                           <UsersIcon className="h-5 w-5 text-purple-600" />
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">{user.full_name}</div>
+                          <div className="font-medium text-gray-900">{user.email}</div>
                           <div className="text-sm text-gray-500 flex items-center space-x-2">
                             <span>{user.email}</span>
 
@@ -458,7 +455,7 @@ const AdminUsers: React.FC = () => {
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => {
-                            setSelectedUser(user);
+                            setSelectedUser(user as User);
                             setShowUserModal(true);
                           }}
                           className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
@@ -517,7 +514,6 @@ const AdminUsers: React.FC = () => {
                 <div>
                   <h3 className="font-medium text-gray-900 mb-3">Kişisel Bilgiler</h3>
                   <div className="space-y-2 text-sm">
-                    <div><strong>Ad Soyad:</strong> {selectedUser.full_name}</div>
                     <div><strong>E-posta:</strong> {selectedUser.email}</div>
                     {selectedUser.phone && (
                       <div><strong>Telefon:</strong> {selectedUser.phone}</div>

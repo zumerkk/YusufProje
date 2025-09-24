@@ -380,6 +380,17 @@ router.post('/run-tests', asyncHandler(async (req, res) => {
     });
   } catch (error) {
     logger.error('Test run failed:', error);
+    const results = {
+      health: false,
+      database: false,
+      auth: false,
+      teacher: false,
+      admin: false,
+      student: false,
+      payment: false,
+      performance: false
+    };
+    
     res.status(500).json({
       success: false,
       error: error.message,

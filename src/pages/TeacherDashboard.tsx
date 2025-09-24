@@ -146,8 +146,7 @@ const TeacherDashboard: React.FC = () => {
     lessons,
     loading,
     getStudents,
-    getLessons,
-    getClasses
+    getLessons
   } = useTeacher();
   
   // Mock notifications for teacher
@@ -181,14 +180,17 @@ const TeacherDashboard: React.FC = () => {
     }
   ]);
   
-  // Sınıfları çek
+  // Sınıfları çek - mock data kullanılıyor
   const fetchClasses = async () => {
     setClassesLoading(true);
     try {
-      const result = await getClasses();
-      if (result.success && result.classes) {
-        setClasses(result.classes);
-      }
+      // Mock classes data
+      const mockClasses = [
+        { id: '1', name: '9A', grade: 9, section: 'A', student_count: 25 },
+        { id: '2', name: '10B', grade: 10, section: 'B', student_count: 28 },
+        { id: '3', name: '11C', grade: 11, section: 'C', student_count: 22 }
+      ];
+      setClasses(mockClasses);
     } catch (error) {
       console.error('Error fetching classes:', error);
     } finally {
@@ -416,7 +418,7 @@ const TeacherDashboard: React.FC = () => {
   const filteredStudents = (students || []).filter(student => {
     const matchesSearch = student.user?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = selectedFilter === 'all' || (student as LocalStudent).status === selectedFilter;
+    const matchesFilter = selectedFilter === 'all' || student.status === selectedFilter;
     return matchesSearch && matchesFilter;
   });
 

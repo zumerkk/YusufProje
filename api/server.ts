@@ -19,7 +19,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000; // Server restart - updated
+const PORT = process.env.PORT || 3002; // Server restart - updated
 
 // Middleware
 app.use(cors({
@@ -363,9 +363,9 @@ app.get('/api/teachers', authenticateToken, async (req, res) => {
     }
     
     // Filter only teacher role users
-    const teacherUsers = teachers.users.filter(user => 
+    const teacherUsers = teachers.users.filter((user: any) => 
       user.user_metadata?.role === 'teacher'
-    ).map(user => ({
+    ).map((user: any) => ({
       id: user.id,
       email: user.email,
       name: user.user_metadata?.name || user.email,
@@ -430,17 +430,17 @@ app.get('/api/student/search-teachers', authenticateToken, async (req, res) => {
       id: teacher.id,
       email: teacher.email,
       user: {
-        full_name: teacher.profiles ? `${teacher.profiles.first_name} ${teacher.profiles.last_name}` : teacher.email,
-        avatar_url: teacher.profiles?.avatar_url
+        full_name: teacher.profiles?.[0] ? `${teacher.profiles[0].first_name} ${teacher.profiles[0].last_name}` : teacher.email,
+        avatar_url: teacher.profiles?.[0]?.avatar_url
       },
       subjects: ['Genel'], // Default subject for now
-      experience: teacher.teachers?.experience_years ? `${teacher.teachers.experience_years}+ yıl` : '1+ yıl',
-      hourly_rate: teacher.teachers?.hourly_rate || 50,
-      rating: teacher.teachers?.rating || 4.5,
-      bio: teacher.teachers?.bio || 'Deneyimli öğretmen',
-      qualifications: teacher.teachers?.education ? [teacher.teachers.education] : [],
-      is_verified: teacher.teachers?.is_verified || false,
-      availability_status: teacher.teachers?.availability_status || 'available',
+      experience: teacher.teachers?.[0]?.experience_years ? `${teacher.teachers[0].experience_years}+ yıl` : '1+ yıl',
+      hourly_rate: teacher.teachers?.[0]?.hourly_rate || 50,
+      rating: teacher.teachers?.[0]?.rating || 4.5,
+      bio: teacher.teachers?.[0]?.bio || 'Deneyimli öğretmen',
+      qualifications: teacher.teachers?.[0]?.education ? [teacher.teachers[0].education] : [],
+      is_verified: teacher.teachers?.[0]?.is_verified || false,
+      availability_status: teacher.teachers?.[0]?.availability_status || 'available',
       created_at: teacher.created_at
     })) || [];
     
@@ -476,9 +476,9 @@ app.get('/api/students', authenticateToken, async (req, res) => {
     }
     
     // Filter only student role users
-    const studentUsers = students.users.filter(user => 
+    const studentUsers = students.users.filter((user: any) => 
       user.user_metadata?.role === 'student'
-    ).map(user => ({
+    ).map((user: any) => ({
       id: user.id,
       email: user.email,
       name: user.user_metadata?.name || user.email,

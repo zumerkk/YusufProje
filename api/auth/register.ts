@@ -84,22 +84,7 @@ export default async function handler(req: Request, res: Response) {
       return;
     }
 
-    // Create profile
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        user_id: userData.id,
-        first_name: firstName,
-        last_name: lastName
-      });
-
-    if (profileError) {
-      console.error('Profile creation error:', profileError);
-      // Clean up user if profile creation fails
-      await supabase.from('users').delete().eq('id', userData.id);
-      res.status(500).json({ error: 'Failed to create user profile' });
-      return;
-    }
+    // Profile creation removed - using user table only
 
     // Create student record if role is student
     if (role === 'student') {
@@ -112,8 +97,7 @@ export default async function handler(req: Request, res: Response) {
 
       if (studentError) {
         console.error('Student creation error:', studentError);
-        // Clean up user and profile if student creation fails
-        await supabase.from('profiles').delete().eq('user_id', userData.id);
+        // Clean up user if student creation fails
         await supabase.from('users').delete().eq('id', userData.id);
         res.status(500).json({ error: 'Failed to create student record' });
         return;
@@ -133,8 +117,7 @@ export default async function handler(req: Request, res: Response) {
 
       if (teacherError) {
         console.error('Teacher creation error:', teacherError);
-        // Clean up user and profile if teacher creation fails
-        await supabase.from('profiles').delete().eq('user_id', userData.id);
+        // Clean up user if teacher creation fails
         await supabase.from('users').delete().eq('id', userData.id);
         res.status(500).json({ error: 'Failed to create teacher record' });
         return;
@@ -150,9 +133,8 @@ export default async function handler(req: Request, res: Response) {
 
       if (subjectError) {
         console.error('Teacher subject creation error:', subjectError);
-        // Clean up teacher, profile and user if subject creation fails
+        // Clean up teacher and user if subject creation fails
         await supabase.from('teachers').delete().eq('id', teacherData.id);
-        await supabase.from('profiles').delete().eq('user_id', userData.id);
         await supabase.from('users').delete().eq('id', userData.id);
         res.status(500).json({ error: 'Failed to create teacher subject record' });
         return;
@@ -176,11 +158,7 @@ export default async function handler(req: Request, res: Response) {
       user: {
         id: userData.id,
         email: userData.email,
-        role: userData.role,
-        profile: {
-          first_name: firstName,
-          last_name: lastName
-        }
+        role: userData.role
       }
     });
   } catch (error) {

@@ -12721,3 +12721,4 @@
 [2025-09-24T12:03:13.028Z] WARN: 404 Not Found: POST /api/payment/mock-process | Meta: {"ip":"::1","userAgent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"}
 [2025-09-24T12:10:13.555Z] WARN: Slow request detected: POST /api/payment/mock-process - 3045ms
 [2025-09-24T12:12:57.597Z] WARN: Slow request detected: POST /api/payment/mock-process - 3488ms
+[2025-09-24T13:35:45.689Z] WARN: Slow request detected: GET /api/reports/dashboard/stats - 521132ms

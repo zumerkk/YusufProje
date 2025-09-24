@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, MapPin, Plus, ChevronLeft, ChevronRight, BookOpen, Users } from 'lucide-react';
 import { useTeacher } from '@/hooks/useTeacher';
 
-interface Lesson {
+interface ScheduleLesson {
   id: string;
   subject: string;
   class_level: string;
@@ -22,7 +22,7 @@ interface Lesson {
 const TeacherSchedule: React.FC = () => {
   const { getLessons } = useTeacher();
   const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [lessons, setLessons] = useState<ScheduleLesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
@@ -39,10 +39,32 @@ const TeacherSchedule: React.FC = () => {
   const loadLessons = async () => {
     try {
       setLoading(true);
-      const data = await getLessons();
-      setLessons(data);
+      const result = await getLessons();
+      if (result.success && result.lessons) {
+        // Convert lessons to ScheduleLesson format
+        const convertedLessons: ScheduleLesson[] = result.lessons.map(lesson => ({
+          id: lesson.id,
+          subject: lesson.subject,
+          class_level: '10', // Mock data
+          class_section: 'A', // Mock data
+          lesson_date: lesson.lesson_date || lesson.date_time?.split('T')[0] || '',
+          start_time: lesson.start_time || lesson.date_time?.split('T')[1]?.substring(0, 5) || '',
+          end_time: lesson.end_time || '',
+          duration_minutes: lesson.duration_minutes,
+          student_count: 25, // Mock data
+          status: lesson.status === 'confirmed' ? 'scheduled' : lesson.status as 'scheduled' | 'completed' | 'cancelled',
+          lesson_notes: lesson.notes,
+          teacher_name: 'Mock Teacher',
+          teacher_id: lesson.teacher_id || 'mock-teacher-id',
+          created_at: new Date().toISOString()
+        }));
+        setLessons(convertedLessons);
+      } else {
+        setLessons([]);
+      }
     } catch (error) {
       console.error('Error loading lessons:', error);
+      setLessons([]);
     } finally {
       setLoading(false);
     }

@@ -18,14 +18,6 @@ export const getTeachers = async (req: Request, res: Response) => {
         is_active,
         created_at,
         updated_at,
-        profiles (
-          first_name,
-          last_name,
-          phone,
-          avatar_url,
-          date_of_birth,
-          address
-        ),
         teachers (
           id,
           bio,
@@ -115,14 +107,6 @@ export const getStudents = async (req: Request, res: Response) => {
         is_active,
         created_at,
         updated_at,
-        profiles (
-          first_name,
-          last_name,
-          phone,
-          avatar_url,
-          date_of_birth,
-          address
-        ),
         students (
           id,
           grade_level,

@@ -290,7 +290,7 @@ const Packages: React.FC = () => {
                     className="w-6 h-6 object-contain"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.nextElementSibling.style.display = 'block';
+                      (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
                     }}
                   />
                   <Home className="w-5 h-5 text-white hidden" />

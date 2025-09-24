@@ -60,7 +60,7 @@ class QueryOptimizer {
     
     try {
       // Build query
-      let query = supabase.from(table);
+      let query: any = supabase.from(table);
       
       // Apply select
       if (options.select) {

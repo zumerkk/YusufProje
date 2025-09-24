@@ -26,9 +26,9 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       
       // Toplam aktif paket sayısı
       supabase
-        .from('packages')
+        .from('student_packages')
         .select('*', { count: 'exact', head: true })
-        .eq('is_active', true),
+        .eq('status', 'active'),
       
       // Toplam ders sayısı
       supabase
@@ -85,27 +85,25 @@ export const getDashboardStats = async (req: Request, res: Response) => {
 
     // Popüler paketleri getir
     const { data: popularPackages, error: popularPackagesError } = await supabase
-      .from('packages')
+      .from('student_packages')
       .select(`
         id,
-        name,
-        price,
-        student_packages!inner(id)
+        package_type,
+        price
       `)
-      .eq('is_active', true)
+      .eq('status', 'active')
       .limit(5);
 
     // Paket satış istatistikleri
     const { data: packageSales, error: packageSalesError } = await supabase
       .from('student_packages')
       .select(`
-        package_id,
-        packages(name)
+        package_type
       `)
       .eq('status', 'active');
 
     const packageSalesStats = packageSales?.reduce((acc, sale) => {
-      const packageName = sale.packages?.name || 'Unknown';
+      const packageName = sale.package_type || 'Unknown';
       acc[packageName] = (acc[packageName] || 0) + 1;
       return acc;
     }, {} as Record<string, number>) || {};
@@ -127,9 +125,9 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       },
       popularPackages: popularPackages?.map(pkg => ({
         id: pkg.id,
-        name: pkg.name,
+        name: pkg.package_type,
         price: pkg.price,
-        salesCount: pkg.student_packages?.length || 0
+        salesCount: 1
       })) || []
     };
 

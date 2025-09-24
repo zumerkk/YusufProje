@@ -911,7 +911,7 @@ const PackageManagement: React.FC = () => {
                             <div className={`w-3 h-3 rounded-full mr-3`} style={{ backgroundColor: pkg.packages?.package_categories?.color || '#6B7280' }}></div>
                             <div>
                               <div className="text-sm font-medium text-gray-900">{pkg.packages?.name || 'Paket'}</div>
-                              <div className="text-sm text-gray-500">{pkg.packages?.package_categories?.name || pkg.packages?.category || 'Genel'}</div>
+                              <div className="text-sm text-gray-500">{pkg.packages?.package_categories?.name || 'Genel'}</div>
                             </div>
                           </div>
                         </td>
@@ -1000,7 +1000,7 @@ const PackageManagement: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Kategori</label>
-                      <p className="mt-1 text-sm text-gray-900">{selectedPackage.packages?.package_categories?.name || selectedPackage.packages?.category || 'Genel'}</p>
+                      <p className="mt-1 text-sm text-gray-900">{selectedPackage.packages?.package_categories?.name || 'Genel'}</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Durum</label>

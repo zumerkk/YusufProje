@@ -98,7 +98,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
       nextLesson: 'Cebirsel İfadeler',
       nextLessonTime: '14:00',
       thumbnail: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=400&h=300&fit=crop&crop=center',
-      difficulty: 'Orta'
+      difficulty: 'Orta' as const
     },
     {
       id: 2,
@@ -111,7 +111,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
       nextLesson: 'Vücudumuzda Sistemler',
       nextLessonTime: '16:30',
       thumbnail: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=400&h=300&fit=crop&crop=center',
-      difficulty: 'Orta'
+      difficulty: 'Orta' as const
     },
     {
       id: 3,
@@ -124,10 +124,10 @@ const getCoursesForGrade = (grade: number): Course[] => {
       nextLesson: 'Metin Türleri',
       nextLessonTime: '10:00',
       thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&crop=center',
-      difficulty: 'Kolay'
-    },
-    {
-      id: 5,
+      difficulty: 'Kolay' as const
+      },
+      {
+        id: 5,
       title: 'Yabancı Dil (İngilizce)',
       subject: 'İngilizce',
       teacher: 'Uzman Öğretmen',
@@ -137,7 +137,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
       nextLesson: 'Present Tense',
       nextLessonTime: '11:30',
       thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop&crop=center',
-      difficulty: 'Orta'
+      difficulty: 'Orta' as const
     }
   ];
 
@@ -154,8 +154,8 @@ const getCoursesForGrade = (grade: number): Course[] => {
       nextLesson: 'Türk Tarihi',
       nextLessonTime: '15:00',
       thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center',
-      difficulty: 'Orta'
-    });
+      difficulty: 'Orta' as const
+      });
   } else if (grade === 8) {
     // 8. sınıf için tüm dersler
     const grade8Courses = [
@@ -170,7 +170,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
         nextLesson: 'Atatürk İlkeleri',
         nextLessonTime: '15:00',
         thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center',
-        difficulty: 'Orta'
+        difficulty: 'Orta' as const
       },
       {
         id: 6,
@@ -183,7 +183,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
         nextLesson: 'Coğrafya ve İklim',
         nextLessonTime: '13:30',
         thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop&crop=center',
-        difficulty: 'Orta'
+        difficulty: 'Orta' as const
       },
       {
         id: 7,
@@ -196,7 +196,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
         nextLesson: 'Ahlaki Değerler',
         nextLessonTime: '09:00',
         thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop&crop=center',
-        difficulty: 'Kolay'
+        difficulty: 'Kolay' as const
       },
       {
         id: 8,
@@ -209,7 +209,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
         nextLesson: 'Atletizm',
         nextLessonTime: '14:30',
         thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center',
-        difficulty: 'Kolay'
+        difficulty: 'Kolay' as const
       },
       {
         id: 9,
@@ -222,7 +222,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
         nextLesson: 'Türk Müziği',
         nextLessonTime: '11:00',
         thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=300&fit=crop&crop=center',
-        difficulty: 'Kolay'
+        difficulty: 'Kolay' as const
       },
       {
         id: 10,
@@ -235,7 +235,7 @@ const getCoursesForGrade = (grade: number): Course[] => {
         nextLesson: 'Resim Teknikleri',
         nextLessonTime: '16:00',
         thumbnail: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400&h=300&fit=crop&crop=center',
-        difficulty: 'Orta'
+        difficulty: 'Orta' as const
       }
     ];
     

@@ -47,11 +47,7 @@ const getLessons = async (studentUserId: string) => {
           user_id,
           users!inner (
             id,
-            email,
-            profiles!inner (
-              first_name,
-              last_name
-            )
+            email
           )
         )
       `)
@@ -77,9 +73,7 @@ const getLessons = async (studentUserId: string) => {
       class_level: lesson.class_level,
       class_section: lesson.class_section,
       lesson_type: lesson.lesson_type,
-      teacher_name: lesson.teachers?.users?.profiles ? 
-        `${lesson.teachers.users.profiles.first_name} ${lesson.teachers.users.profiles.last_name}` : 
-        'Unknown Teacher',
+      teacher_name: lesson.teachers?.[0]?.users?.[0]?.email || 'Unknown Teacher',
       created_at: lesson.created_at,
       updated_at: lesson.updated_at
     })) || [];

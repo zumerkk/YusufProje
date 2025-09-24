@@ -26,19 +26,8 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
         created_at,
         student_id,
         package_id,
-        users!payments_student_id_fkey (
-          id,
-          email,
-          profiles (
-            first_name,
-            last_name
-          )
-        ),
-        packages!payments_package_id_fkey (
-          id,
-          name,
-          price
-        )
+        package_type,
+        user_id
       `)
       .eq('status', 'success')
       .gte('created_at', startDate)
@@ -59,7 +48,7 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
       filteredSales = filteredSales.filter(sale => new Date(sale.created_at) <= new Date(date_to as string));
     }
     if (package_type) {
-      filteredSales = filteredSales.filter(sale => sale.packages?.package_type === package_type);
+      filteredSales = filteredSales.filter(sale => sale.package_type === package_type);
     }
     if (status && status !== 'success') {
       filteredSales = filteredSales.filter(sale => sale.status === status);
@@ -72,14 +61,14 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
 
     // Toplam gelir hesaplama
     const totalRevenue = filteredSales.reduce((sum, sale) => {
-      return sum + (sale.amount || sale.packages?.price || 0);
+      return sum + (sale.amount || 0);
     }, 0);
 
     // Package sales count by package
     const packageSales = filteredSales.reduce((acc, sale) => {
-      const packageId = sale.packages?.id;
-      if (packageId) {
-        acc[packageId] = (acc[packageId] || 0) + 1;
+      const packageType = sale.package_type;
+      if (packageType) {
+        acc[packageType] = (acc[packageType] || 0) + 1;
       }
       return acc;
     }, {});
@@ -88,13 +77,12 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
     const topPackages = Object.entries(packageSales)
       .sort(([,a], [,b]) => (b as number) - (a as number))
       .slice(0, 5)
-      .map(([packageId, count]) => {
-        const packageInfo = filteredSales.find(sale => sale.packages?.id === packageId)?.packages;
+      .map(([packageType, count]) => {
         return {
-          id: packageId,
-          name: packageInfo?.name || 'Unknown',
+          id: packageType,
+          name: packageType,
           sales_count: count,
-          revenue: (count as number) * (packageInfo?.price || 0)
+          revenue: (count as number) * 100 // Default price
         };
       });
 
@@ -109,7 +97,7 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
     // Paket türü bazında dağılım
     const packageTypeDistribution: { [key: string]: any } = {};
     (sales || []).forEach(sale => {
-      const packageType = sale.packages?.package_type || 'unknown';
+      const packageType = sale.package_type || 'unknown';
       if (!packageTypeDistribution[packageType]) {
         packageTypeDistribution[packageType] = {
           count: 0,
@@ -117,7 +105,7 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
         };
       }
       packageTypeDistribution[packageType].count++;
-      packageTypeDistribution[packageType].revenue += sale.amount || sale.packages?.price || 0;
+      packageTypeDistribution[packageType].revenue += sale.amount || 0;
     });
 
     // Aylık satış trendi
@@ -135,18 +123,18 @@ export const getPackageSalesOverviewReport = async (req: Request, res: Response)
       }
       
       monthlySales[monthKey].count++;
-      monthlySales[monthKey].revenue += sale.amount || sale.packages?.price || 0;
+      monthlySales[monthKey].revenue += sale.amount || 0;
     });
 
     // Frontend'in beklediği format için recent_purchases hazırla
     const recentPurchases = (sales || []).slice(0, 10).map(sale => ({
       id: sale.id,
-      student_name: `${sale.users?.profiles?.first_name || ''} ${sale.users?.profiles?.last_name || ''}`.trim() || 'Bilinmeyen',
-      package_name: sale.packages?.package_name || 'Bilinmeyen Paket',
-      amount: sale.amount || sale.packages?.price || 0,
+      student_name: 'Bilinmeyen',
+      package_name: sale.package_type || 'Bilinmeyen Paket',
+      amount: sale.amount || 0,
       status: sale.status,
       created_at: sale.created_at,
-      payment_method: sale.payment_method || 'Bilinmeyen'
+      payment_method: 'Bilinmeyen'
     }));
 
     // Popular packages için paket türü dağılımını dönüştür
@@ -198,9 +186,9 @@ export const getPackagePerformanceReport = async (req: Request, res: Response) =
   try {
     const { date_from, date_to } = req.query;
 
-    // Tüm paketler
+    // Student packages kullan
     const { data: packages, error: packagesError } = await supabase
-      .from('packages')
+      .from('student_packages')
       .select('*');
 
     if (packagesError) {
@@ -215,7 +203,7 @@ export const getPackagePerformanceReport = async (req: Request, res: Response) =
       let salesQuery = supabase
         .from('payments')
         .select('*')
-        .eq('package_id', pkg.id);
+        .eq('package_type', pkg.package_type);
 
       if (date_from) {
         salesQuery = salesQuery.gte('created_at', date_from);
@@ -228,7 +216,7 @@ export const getPackagePerformanceReport = async (req: Request, res: Response) =
 
       const totalSales = sales?.length || 0;
       const completedSales = sales?.filter(s => s.status === 'completed').length || 0;
-      const totalRevenue = sales?.reduce((sum, sale) => sum + (sale.amount || pkg.price), 0) || 0;
+      const totalRevenue = sales?.reduce((sum, sale) => sum + (sale.amount || pkg.price || 0), 0) || 0;
       const conversionRate = totalSales > 0 ? (completedSales / totalSales) * 100 : 0;
 
       packagePerformance.push({
@@ -279,19 +267,8 @@ export const getCustomerPurchaseBehaviorReport = async (req: Request, res: Respo
         created_at,
         student_id,
         package_id,
-        users!payments_student_id_fkey (
-          id,
-          email,
-          profiles (
-            first_name,
-            last_name
-          )
-        ),
-        packages!payments_package_id_fkey (
-          id,
-          name,
-          price
-        )
+        package_type,
+        user_id
       `)
 
     if (date_from) {
@@ -318,7 +295,7 @@ export const getCustomerPurchaseBehaviorReport = async (req: Request, res: Respo
       const customerId = purchase.user_id;
       if (!customerAnalysis[customerId]) {
         customerAnalysis[customerId] = {
-          customer_info: purchase.profiles,
+          customer_info: null,
           total_purchases: 0,
           total_spent: 0,
           packages_bought: [],
@@ -328,8 +305,8 @@ export const getCustomerPurchaseBehaviorReport = async (req: Request, res: Respo
       }
       
       customerAnalysis[customerId].total_purchases++;
-      customerAnalysis[customerId].total_spent += purchase.amount || purchase.packages?.price || 0;
-      customerAnalysis[customerId].packages_bought.push(purchase.packages);
+      customerAnalysis[customerId].total_spent += purchase.amount || 0;
+      customerAnalysis[customerId].packages_bought.push(purchase.package_type);
       
       // İlk ve son satın alma tarihlerini güncelle
       if (new Date(purchase.created_at) < new Date(customerAnalysis[customerId].first_purchase)) {
@@ -399,10 +376,7 @@ export const getPackageSalesTrendReport = async (req: Request, res: Response) =>
         created_at,
         amount,
         status,
-        packages:package_id (
-          package_type,
-          price
-        )
+        package_type
       `)
       .eq('status', 'completed');
 
@@ -451,9 +425,9 @@ export const getPackageSalesTrendReport = async (req: Request, res: Response) =>
       }
       
       trendData[periodKey].total_sales++;
-      trendData[periodKey].total_revenue += sale.amount || sale.packages?.price || 0;
+      trendData[periodKey].total_revenue += sale.amount || 0;
       
-      const packageType = sale.packages?.package_type || 'unknown';
+      const packageType = sale.package_type || 'unknown';
       if (!trendData[periodKey].package_types[packageType]) {
         trendData[periodKey].package_types[packageType] = 0;
       }
@@ -512,19 +486,7 @@ export const getPackageRefundReport = async (req: Request, res: Response) => {
         updated_at,
         student_id,
         package_id,
-        users!payments_student_id_fkey (
-          id,
-          email,
-          profiles (
-            first_name,
-            last_name
-          )
-        ),
-        packages!payments_package_id_fkey (
-          id,
-          name,
-          price
-        )
+        package_type
       `)
       .in('status', ['cancelled', 'failed']);
 
@@ -551,13 +513,13 @@ export const getPackageRefundReport = async (req: Request, res: Response) => {
 
     // Toplam kayıp gelir
     const totalLostRevenue = refunds.reduce((sum, refund) => {
-      return sum + (refund.amount || refund.packages?.price || 0);
+      return sum + (refund.amount || 0);
     }, 0);
 
     // Paket türü bazında iade oranları
     const packageRefundRates: { [key: string]: any } = {};
     refunds.forEach(refund => {
-      const packageType = refund.packages?.package_type || 'unknown';
+      const packageType = refund.package_type || 'unknown';
       if (!packageRefundRates[packageType]) {
         packageRefundRates[packageType] = {
           total_refunds: 0,
@@ -565,7 +527,7 @@ export const getPackageRefundReport = async (req: Request, res: Response) => {
         };
       }
       packageRefundRates[packageType].total_refunds++;
-      packageRefundRates[packageType].lost_revenue += refund.amount || refund.packages?.price || 0;
+      packageRefundRates[packageType].lost_revenue += refund.amount || 0;
     });
 
     // En çok iade edilen paketler
@@ -588,12 +550,12 @@ export const getPackageRefundReport = async (req: Request, res: Response) => {
       top_refunded_packages: topRefundedPackages,
       detailed_refunds: refunds.map(refund => ({
         id: refund.id,
-        customer: `${refund.profiles?.first_name} ${refund.profiles?.last_name}`,
-        package: refund.packages?.package_name,
-        amount: refund.amount || refund.packages?.price,
+        customer: 'Öğrenci',
+        package: refund.package_type || 'unknown',
+        amount: refund.amount || 0,
         status: refund.status,
         created_at: refund.created_at,
-        refund_reason: refund.refund_reason || 'Belirtilmemiş'
+        refund_reason: 'Belirtilmemiş'
       }))
     });
   } catch (error) {

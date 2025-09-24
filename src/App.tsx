@@ -291,7 +291,7 @@ export default function App() {
           path="/admin/classes" 
           element={
             <ProtectedRoute requiredRole="admin">
-              <ClassManagement />
+              <ClassManagement darkMode={false} />
             </ProtectedRoute>
           } 
         />

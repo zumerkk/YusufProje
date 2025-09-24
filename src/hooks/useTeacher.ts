@@ -704,11 +704,11 @@ export const useTeacher = (): UseTeacherReturn => {
     profile,
     getStudents,
     getLessons,
-    createLesson,
-    getClassLevels,
-    getClassSections,
-    getClassStudentCount,
-    getClasses,
+
+
+
+
+
     scheduleLesson,
     updateProfile,
     setAvailability,

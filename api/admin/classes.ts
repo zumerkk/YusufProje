@@ -367,10 +367,9 @@ export const assignStudentToClass = async (req: Request, res: Response) => {
     }
 
     // Sınıf öğrenci sayısını güncelle
-    const { error: updateError } = await supabase
-      .from('classes')
-      .update({ student_count: supabase.sql`student_count + 1` })
-      .eq('id', class_id);
+    const { error: updateError } = await supabase.rpc('increment_student_count', {
+      class_id: class_id
+    });
 
     if (updateError) {
       console.error('Update student count error:', updateError);
@@ -416,10 +415,9 @@ export const removeStudentFromClass = async (req: Request, res: Response) => {
     }
 
     // Sınıf öğrenci sayısını güncelle
-    const { error: updateError } = await supabase
-      .from('classes')
-      .update({ student_count: supabase.sql`student_count - 1` })
-      .eq('id', class_id);
+    const { error: updateError } = await supabase.rpc('decrement_student_count', {
+      class_id: class_id
+    });
 
     if (updateError) {
       console.error('Update student count error:', updateError);

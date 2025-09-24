@@ -3,7 +3,13 @@
  * Request validation using custom validators
  */
 import { Request, Response, NextFunction } from 'express';
-import { ValidationError } from './errorHandler';
+// Custom validation error class
+class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
 
 // Validation helper functions
 const isEmail = (email: string): boolean => {

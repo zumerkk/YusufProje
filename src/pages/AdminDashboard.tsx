@@ -102,7 +102,7 @@ import {
   CloudDownload,
   Save,
   Printer,
-  Scanner,
+
   Smartphone,
   Tablet,
   Laptop,
@@ -659,7 +659,7 @@ const AdminDashboard: React.FC = () => {
               </Link>
               <div>
                 <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Admin Kontrol Paneli</h1>
-                <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Hoş geldiniz, {user?.profiles?.first_name && user?.profiles?.last_name ? `${user.profiles.first_name} ${user.profiles.last_name}` : user?.profiles?.first_name || user?.profiles?.last_name || 'İsimsiz Kullanıcı'}</p>
+                <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Hoş geldiniz, {user?.email || 'İsimsiz Kullanıcı'}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <button

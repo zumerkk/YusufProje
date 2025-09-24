@@ -9,10 +9,14 @@ import UpdatePassword from '@/pages/UpdatePassword';
 import Packages from '@/pages/Packages';
 import WhyUs from '@/pages/WhyUs';
 import About from '@/pages/About';
+import PaymentCallback from '@/pages/PaymentCallback';
+import Payment from '@/pages/Payment';
+import PaymentSuccess from '@/pages/PaymentSuccess';
 
 import StudentDashboard from '@/pages/StudentDashboard';
 import TeacherDashboard from '@/pages/TeacherDashboard';
 import AdminDashboard from '@/pages/AdminDashboard';
+import PackageManagement from '@/pages/PackageManagement';
 
 // Student Pages
 // import StudentDashboardNew from '@/pages/student/Dashboard';
@@ -26,11 +30,13 @@ import TeacherProfile from '@/pages/teacher/Profile';
 import TeacherSchedule from '@/pages/teacher/Schedule';
 import TeacherStudents from '@/pages/teacher/Students';
 import TeacherUpload from '@/pages/teacher/Upload';
+import TeacherLessons from '@/pages/teacher/Lessons';
 
 // Admin Pages
 import AdminDashboardNew from '@/pages/admin/Dashboard';
 import AdminUsers from '@/pages/admin/Users';
 import AdminAnalytics from '@/pages/admin/Analytics';
+import ClassManagement from '@/components/admin/ClassManagement';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -132,6 +138,11 @@ export default function App() {
             </PublicRoute>
           } 
         />
+        
+        {/* Payment routes */}
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/callback" element={<PaymentCallback />} />
 
         {/* Protected dashboard routes without layout */}
         <Route 
@@ -192,6 +203,14 @@ export default function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/student/packages" 
+          element={
+            <ProtectedRoute requiredRole="student">
+              <PackageManagement />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* New Teacher Routes */}
         <Route 
@@ -234,6 +253,14 @@ export default function App() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/teacher/lessons" 
+          element={
+            <ProtectedRoute requiredRole="teacher">
+              <TeacherLessons />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* New Admin Routes */}
         <Route 
@@ -257,6 +284,14 @@ export default function App() {
           element={
             <ProtectedRoute requiredRole="admin">
               <AdminAnalytics />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/classes" 
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <ClassManagement />
             </ProtectedRoute>
           } 
         />

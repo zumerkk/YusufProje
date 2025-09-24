@@ -85,8 +85,7 @@ export const useStudent = (): UseStudentReturn => {
   const [profile, setProfile] = useState<StudentProfile | null>(null);
 
   const getAuthToken = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token;
+    return localStorage.getItem('auth_token');
   };
 
   const searchTeachers = async (searchQuery?: string, filters?: {
@@ -306,48 +305,9 @@ export const useStudent = (): UseStudentReturn => {
     try {
       const token = await getAuthToken();
       if (!token) {
-        // If no token, use mock data instead of showing error
-        const mockLessons = [
-          {
-            id: '1',
-            teacher_id: 'teacher1',
-            student_id: 'student1',
-            subject: 'Matematik',
-            date_time: '2024-01-20T10:00:00Z',
-            duration_minutes: 60,
-            price: 150,
-            status: 'scheduled' as const,
-            notes: 'Türev konusu işlenecek',
-            teacher_name: 'Ahmet Yılmaz'
-          },
-          {
-            id: '2',
-            teacher_id: 'teacher2',
-            student_id: 'student1',
-            subject: 'Fizik',
-            date_time: '2024-01-18T14:00:00Z',
-            duration_minutes: 60,
-            price: 140,
-            status: 'completed' as const,
-            notes: 'Hareket konusu tamamlandı',
-            rating: 5,
-            teacher_name: 'Ayşe Demir'
-          },
-          {
-            id: '3',
-            teacher_id: 'teacher3',
-            student_id: 'student1',
-            subject: 'Kimya',
-            date_time: '2024-01-22T16:00:00Z',
-            duration_minutes: 90,
-            price: 180,
-            status: 'scheduled' as const,
-            notes: 'Organik kimya giriş',
-            teacher_name: 'Mehmet Kaya'
-          }
-        ];
-        setLessons(mockLessons);
-        return { success: true, lessons: mockLessons };
+        console.error('No authentication token found');
+        setLessons([]);
+        return { success: false, error: 'No token' };
       }
 
       const queryParams = new URLSearchParams();
@@ -366,94 +326,14 @@ export const useStudent = (): UseStudentReturn => {
         setLessons(data.lessons || []);
         return { success: true, lessons: data.lessons };
       } else {
-        // If API fails, use mock data as fallback
-        console.warn('API failed, using mock data:', data.error);
-        const mockLessons = [
-          {
-            id: '1',
-            teacher_id: 'teacher1',
-            student_id: 'student1',
-            subject: 'Matematik',
-            date_time: '2024-01-20T10:00:00Z',
-            duration_minutes: 60,
-            price: 150,
-            status: 'scheduled' as const,
-            notes: 'Türev konusu işlenecek',
-            teacher_name: 'Ahmet Yılmaz'
-          },
-          {
-            id: '2',
-            teacher_id: 'teacher2',
-            student_id: 'student1',
-            subject: 'Fizik',
-            date_time: '2024-01-18T14:00:00Z',
-            duration_minutes: 60,
-            price: 140,
-            status: 'completed' as const,
-            notes: 'Hareket konusu tamamlandı',
-            rating: 5,
-            teacher_name: 'Ayşe Demir'
-          },
-          {
-            id: '3',
-            teacher_id: 'teacher3',
-            student_id: 'student1',
-            subject: 'Kimya',
-            date_time: '2024-01-22T16:00:00Z',
-            duration_minutes: 90,
-            price: 180,
-            status: 'scheduled' as const,
-            notes: 'Organik kimya giriş',
-            teacher_name: 'Mehmet Kaya'
-          }
-        ];
-        setLessons(mockLessons);
-        return { success: true, lessons: mockLessons };
+        console.error('Failed to fetch lessons:', data.error);
+        setLessons([]);
+        return { success: false, error: data.error };
       }
     } catch (error) {
-      console.warn('Get lessons error, using mock data:', error);
-      // Use mock data as fallback when API is not available
-      const mockLessons = [
-        {
-          id: '1',
-          teacher_id: 'teacher1',
-          student_id: 'student1',
-          subject: 'Matematik',
-          date_time: '2024-01-20T10:00:00Z',
-          duration_minutes: 60,
-          price: 150,
-          status: 'scheduled' as const,
-          notes: 'Türev konusu işlenecek',
-          teacher_name: 'Ahmet Yılmaz'
-        },
-        {
-          id: '2',
-          teacher_id: 'teacher2',
-          student_id: 'student1',
-          subject: 'Fizik',
-          date_time: '2024-01-18T14:00:00Z',
-          duration_minutes: 60,
-          price: 140,
-          status: 'completed' as const,
-          notes: 'Hareket konusu tamamlandı',
-          rating: 5,
-          teacher_name: 'Ayşe Demir'
-        },
-        {
-          id: '3',
-          teacher_id: 'teacher3',
-          student_id: 'student1',
-          subject: 'Kimya',
-          date_time: '2024-01-22T16:00:00Z',
-          duration_minutes: 90,
-          price: 180,
-          status: 'scheduled' as const,
-          notes: 'Organik kimya giriş',
-          teacher_name: 'Mehmet Kaya'
-        }
-      ];
-      setLessons(mockLessons);
-      return { success: true, lessons: mockLessons };
+      console.error('Error fetching lessons:', error);
+      setLessons([]);
+      return { success: false, error: 'Failed to fetch lessons' };
     } finally {
       setLoading(false);
     }

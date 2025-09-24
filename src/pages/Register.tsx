@@ -18,6 +18,8 @@ const Register: React.FC = () => {
     firstName: '',
     lastName: '',
     role: (searchParams.get('role') as UserRole) || 'student',
+    grade: '',
+    subject: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -63,6 +65,16 @@ const Register: React.FC = () => {
       newErrors.confirmPassword = 'Şifreler eşleşmiyor';
     }
 
+    // Grade validation for students
+    if (formData.role === 'student' && !formData.grade) {
+      newErrors.grade = 'Sınıf seçimi zorunludur';
+    }
+
+    // Subject validation for teachers
+    if (formData.role === 'teacher' && !formData.subject) {
+      newErrors.subject = 'Branş seçimi zorunludur';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -75,13 +87,15 @@ const Register: React.FC = () => {
     setErrors({});
 
     try {
-      const result = await register(
-        formData.email,
-        formData.password,
-        formData.firstName,
-        formData.lastName,
-        formData.role as 'student' | 'teacher'
-      );
+      const result = await register({
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role: formData.role,
+        grade: formData.grade,
+        subject: formData.subject
+      });
       
       if (result.success) {
         setSuccess(true);
@@ -196,6 +210,67 @@ const Register: React.FC = () => {
                 <option value="teacher">Öğretmen</option>
               </select>
             </div>
+
+            {/* Grade Selection for Students */}
+            {formData.role === 'student' && (
+              <div>
+                <label htmlFor="grade" className="block text-sm font-medium text-gray-700">
+                  Sınıf <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="grade"
+                  name="grade"
+                  value={formData.grade}
+                  onChange={handleInputChange}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.grade ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Sınıf seçiniz</option>
+                  <option value="4">4. Sınıf</option>
+                  <option value="5">5. Sınıf</option>
+                  <option value="6">6. Sınıf</option>
+                  <option value="7">7. Sınıf</option>
+                  <option value="8">8. Sınıf</option>
+                </select>
+                {errors.grade && (
+                  <p className="mt-2 text-sm text-red-600">{errors.grade}</p>
+                )}
+              </div>
+            )}
+
+            {/* Subject Selection for Teachers */}
+            {formData.role === 'teacher' && (
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
+                  Branş <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
+                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.subject ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Branş seçiniz</option>
+                  <option value="matematik">Matematik</option>
+                  <option value="fen-bilimleri">Fen Bilimleri</option>
+                  <option value="turkce">Türkçe</option>
+                  <option value="ingilizce">İngilizce</option>
+                  <option value="sosyal-bilgiler">Sosyal Bilgiler</option>
+                  <option value="inkilap-tarihi">İnkılap Tarihi ve Atatürkçülük</option>
+                  <option value="din-kulturu">Din Kültürü ve Ahlak Bilgisi</option>
+                  <option value="beden-egitimi">Beden Eğitimi</option>
+                  <option value="muzik">Müzik</option>
+                  <option value="gorsel-sanatlar">Görsel Sanatlar</option>
+                </select>
+                {errors.subject && (
+                  <p className="mt-2 text-sm text-red-600">{errors.subject}</p>
+                )}
+              </div>
+            )}
 
             {/* Name Fields */}
             <div className="grid grid-cols-2 gap-4">

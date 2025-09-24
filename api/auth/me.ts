@@ -55,6 +55,55 @@ export default async function handler(req: Request, res: Response) {
       .eq('user_id', userData.id)
       .single();
 
+    // Get student data if user is a student
+    let studentData = null;
+    if (userData.role === 'student') {
+      console.log('Fetching student data for user_id:', userData.id);
+      const { data: student, error: studentError } = await supabase
+        .from('students')
+        .select('grade_level, school_name, parent_phone')
+        .eq('user_id', userData.id)
+        .single();
+      console.log('Student query result:', { student, studentError });
+      studentData = student;
+    }
+
+    // Get teacher data if user is a teacher
+    let teacherData = null;
+    if (userData.role === 'teacher') {
+      console.log('Fetching teacher data for user_id:', userData.id);
+      const { data: teacher, error: teacherError } = await supabase
+        .from('teachers')
+        .select(`
+          bio,
+          experience_years,
+          education,
+          hourly_rate,
+          rating,
+          total_reviews,
+          is_verified,
+          availability_status,
+          teacher_subjects(
+            subject_name,
+            proficiency_level,
+            years_experience
+          )
+        `)
+        .eq('user_id', userData.id)
+        .single();
+      
+      console.log('Teacher query result:', { teacher, teacherError });
+      
+      // Extract the first subject as the main subject
+      const subject = teacher?.teacher_subjects?.[0]?.subject_name || null;
+      
+      teacherData = {
+        ...teacher,
+        subject: subject,
+        teacher_subjects: teacher?.teacher_subjects || []
+      };
+    }
+
     res.status(200).json({
       user: {
         id: userData.id,
@@ -62,7 +111,9 @@ export default async function handler(req: Request, res: Response) {
         role: userData.role,
         is_active: userData.is_active,
         created_at: userData.created_at,
-        profile: profileData
+        profile: profileData,
+        student: studentData,
+        teacher: teacherData
       }
     });
   } catch (error) {

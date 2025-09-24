@@ -14,7 +14,8 @@ import {
   ArrowDown,
   Download,
   Filter,
-  RefreshCw
+  RefreshCw,
+  Package
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import {
@@ -88,6 +89,23 @@ const AdminAnalytics: React.FC = () => {
     { name: 'Türkçe', lessons: 112, revenue: 31800, color: '#8B5CF6' },
     { name: 'Tarih', lessons: 76, revenue: 21600, color: '#6B7280' },
     { name: 'Coğrafya', lessons: 65, revenue: 18500, color: '#EC4899' }
+  ];
+
+  // Package sales data
+  const packageSalesData = [
+    { name: 'Okul Destek Paketi', sales: 45, revenue: 134550, growth: 12.5, color: '#8B5CF6' },
+    { name: 'Sınav Hazırlık Paketi', sales: 38, revenue: 152000, growth: 8.3, color: '#06B6D4' },
+    { name: 'Özel Ders Paketi', sales: 29, revenue: 87000, growth: -2.1, color: '#10B981' },
+    { name: 'Yoğunlaştırılmış Paket', sales: 22, revenue: 110000, growth: 15.7, color: '#F59E0B' }
+  ];
+
+  const packageTrendData = [
+    { month: 'Oca', okul: 12, sinav: 8, ozel: 5, yogun: 3 },
+    { month: 'Şub', okul: 15, sinav: 12, ozel: 7, yogun: 5 },
+    { month: 'Mar', okul: 18, sinav: 15, ozel: 9, yogun: 6 },
+    { month: 'Nis', okul: 22, sinav: 18, ozel: 11, yogun: 8 },
+    { month: 'May', okul: 28, sinav: 22, ozel: 14, yogun: 10 },
+    { month: 'Haz', okul: 35, sinav: 28, ozel: 18, yogun: 13 }
   ];
 
   const weeklyGrowthData = [
@@ -456,6 +474,120 @@ const AdminAnalytics: React.FC = () => {
               <div className="flex items-center justify-center mt-2">
                 <ArrowUp className="h-3 w-3 text-green-500" />
                 <span className="text-xs text-green-600 ml-1">+3 dk</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Package Sales Analytics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Package Sales Overview */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Paket Satış Analizi</h3>
+              <Package className="h-5 w-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              {packageSalesData.map((pkg, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: pkg.color }}
+                    ></div>
+                    <div>
+                      <div className="font-medium text-gray-900">{pkg.name}</div>
+                      <div className="text-sm text-gray-500">{pkg.sales} satış</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium text-gray-900">₺{pkg.revenue.toLocaleString()}</div>
+                    <div className={`text-sm flex items-center ${
+                      pkg.growth > 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {pkg.growth > 0 ? (
+                        <ArrowUp className="h-3 w-3 mr-1" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3 mr-1" />
+                      )}
+                      {Math.abs(pkg.growth)}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Package Trend Chart */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">Paket Satış Trendi</h3>
+              <TrendingUp className="h-5 w-5 text-gray-400" />
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={packageTrendData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value, name) => [
+                    `${value} satış`,
+                    name === 'okul' ? 'Okul Destek' :
+                    name === 'sinav' ? 'Sınav Hazırlık' :
+                    name === 'ozel' ? 'Özel Ders' :
+                    name === 'yogun' ? 'Yoğunlaştırılmış' : name
+                  ]}
+                />
+                <Line type="monotone" dataKey="okul" stroke="#8B5CF6" strokeWidth={2} />
+                <Line type="monotone" dataKey="sinav" stroke="#06B6D4" strokeWidth={2} />
+                <Line type="monotone" dataKey="ozel" stroke="#10B981" strokeWidth={2} />
+                <Line type="monotone" dataKey="yogun" stroke="#F59E0B" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Package Statistics */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900">Paket İstatistikleri</h3>
+            <div className="text-sm text-gray-500">Son 30 Gün</div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+              <div className="text-2xl font-bold text-purple-600">134</div>
+              <div className="text-sm text-gray-600 mt-1">Toplam Paket Satışı</div>
+              <div className="flex items-center justify-center mt-2">
+                <ArrowUp className="h-3 w-3 text-green-500" />
+                <span className="text-xs text-green-600 ml-1">+8.5%</span>
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">₺483,550</div>
+              <div className="text-sm text-gray-600 mt-1">Toplam Paket Geliri</div>
+              <div className="flex items-center justify-center mt-2">
+                <ArrowUp className="h-3 w-3 text-green-500" />
+                <span className="text-xs text-green-600 ml-1">+12.3%</span>
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">₺3,608</div>
+              <div className="text-sm text-gray-600 mt-1">Ortalama Paket Değeri</div>
+              <div className="flex items-center justify-center mt-2">
+                <ArrowUp className="h-3 w-3 text-green-500" />
+                <span className="text-xs text-green-600 ml-1">+3.2%</span>
+              </div>
+            </div>
+            
+            <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg">
+              <div className="text-2xl font-bold text-yellow-600">89.2%</div>
+              <div className="text-sm text-gray-600 mt-1">Paket Tamamlama Oranı</div>
+              <div className="flex items-center justify-center mt-2">
+                <ArrowUp className="h-3 w-3 text-green-500" />
+                <span className="text-xs text-green-600 ml-1">+1.8%</span>
               </div>
             </div>
           </div>

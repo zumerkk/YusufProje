@@ -200,13 +200,137 @@ export interface NavItem {
 export interface Package {
   id: string;
   name: string;
+  subtitle?: string;
   description: string;
-  price: number;
+  price: number; // kuruş cinsinden
+  original_price?: number;
   duration: string;
-  features: string[];
-  popular?: boolean;
-  subjects: string[];
-  gradeLevels: string[];
+  target_audience?: string;
+  weekly_lessons?: string;
+  lesson_details?: any;
+  features: any[];
+  is_popular?: boolean;
+  is_premium?: boolean;
+  icon?: string;
+  gradient?: string;
+  bg_color?: string;
+  text_color?: string;
+  is_active?: boolean;
+  category?: string;
+  category_id?: string;
+  difficulty_level?: string;
+  max_students?: number;
+  min_age?: number;
+  max_age?: number;
+  prerequisites?: string;
+  certificate_provided?: boolean;
+  refund_policy?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StudentPackage {
+  id: string;
+  student_id: string;
+  package_id: string;
+  purchase_date: string;
+  start_date?: string;
+  expiry_date?: string;
+  remaining_lessons: number;
+  total_lessons: number;
+  lessons_used?: number;
+  last_lesson_date?: string;
+  status: 'active' | 'expired' | 'cancelled';
+  notes?: string;
+  discount_applied?: number;
+  original_amount?: number;
+  final_amount?: number;
+  created_at: string;
+  updated_at: string;
+  packages?: Package;
+}
+
+export interface PackageCategory {
+  id: string;
+  name: string;
+  description?: string;
+  icon?: string;
+  color?: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PackageReview {
+  id: string;
+  package_id: string;
+  student_id: string;
+  rating: number;
+  review_text?: string;
+  is_verified: boolean;
+  helpful_count: number;
+  created_at: string;
+  updated_at: string;
+  student?: Student;
+}
+
+export interface PackageDiscount {
+  id: string;
+  package_id: string;
+  discount_type: 'percentage' | 'fixed_amount';
+  discount_value: number;
+  start_date: string;
+  end_date: string;
+  max_uses?: number;
+  current_uses: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PackageAnalytics {
+  id: string;
+  package_id: string;
+  date: string;
+  views_count: number;
+  purchases_count: number;
+  revenue: number;
+  refunds_count: number;
+  completion_rate: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Payment {
+  id: string;
+  student_id: string;
+  package_id: string;
+  student_package_id?: string;
+  amount: number; // kuruş cinsinden
+  installments: number;
+  payment_method?: string;
+  iyzico_payment_id?: string;
+  iyzico_conversation_id?: string;
+  status: 'pending' | 'success' | 'failed' | 'cancelled';
+  payment_date?: string;
+  created_at: string;
+  updated_at: string;
+  packages?: Package;
+  student_packages?: StudentPackage;
+}
+
+export interface PaymentInstallment {
+  id: string;
+  payment_id: string;
+  installment_number: number;
+  amount: number;
+  due_date: string;
+  payment_date?: string;
+  status: 'pending' | 'paid' | 'overdue' | 'failed';
+  iyzico_installment_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Testimonial types

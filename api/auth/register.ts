@@ -8,9 +8,10 @@ import jwt from 'jsonwebtoken';
 
 export default async function handler(req: Request, res: Response) {
   // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -25,10 +26,22 @@ export default async function handler(req: Request, res: Response) {
   }
 
   try {
-    const { email, password, role, firstName, lastName } = req.body;
+    const { email, password, role, firstName, lastName, grade, subject } = req.body;
 
     if (!email || !password || !role || !firstName || !lastName) {
       res.status(400).json({ error: 'All fields are required' });
+      return;
+    }
+
+    // Grade validation for students
+    if (role === 'student' && !grade) {
+      res.status(400).json({ error: 'Grade is required for students' });
+      return;
+    }
+
+    // Subject validation for teachers
+    if (role === 'teacher' && !subject) {
+      res.status(400).json({ error: 'Subject is required for teachers' });
       return;
     }
 
@@ -60,8 +73,7 @@ export default async function handler(req: Request, res: Response) {
         email,
         password_hash: passwordHash,
         role,
-        is_active: true,
-        email_verified: false
+        is_active: true
       })
       .select()
       .single();
@@ -87,6 +99,64 @@ export default async function handler(req: Request, res: Response) {
       await supabase.from('users').delete().eq('id', userData.id);
       res.status(500).json({ error: 'Failed to create user profile' });
       return;
+    }
+
+    // Create student record if role is student
+    if (role === 'student') {
+      const { error: studentError } = await supabase
+        .from('students')
+        .insert({
+          user_id: userData.id,
+          grade_level: grade
+        });
+
+      if (studentError) {
+        console.error('Student creation error:', studentError);
+        // Clean up user and profile if student creation fails
+        await supabase.from('profiles').delete().eq('user_id', userData.id);
+        await supabase.from('users').delete().eq('id', userData.id);
+        res.status(500).json({ error: 'Failed to create student record' });
+        return;
+      }
+    }
+
+    // Create teacher record if role is teacher
+    if (role === 'teacher') {
+      // First create teacher record
+      const { data: teacherData, error: teacherError } = await supabase
+        .from('teachers')
+        .insert({
+          user_id: userData.id
+        })
+        .select()
+        .single();
+
+      if (teacherError) {
+        console.error('Teacher creation error:', teacherError);
+        // Clean up user and profile if teacher creation fails
+        await supabase.from('profiles').delete().eq('user_id', userData.id);
+        await supabase.from('users').delete().eq('id', userData.id);
+        res.status(500).json({ error: 'Failed to create teacher record' });
+        return;
+      }
+
+      // Then create teacher subject record
+      const { error: subjectError } = await supabase
+        .from('teacher_subjects')
+        .insert({
+          teacher_id: teacherData.id,
+          subject_name: subject
+        });
+
+      if (subjectError) {
+        console.error('Teacher subject creation error:', subjectError);
+        // Clean up teacher, profile and user if subject creation fails
+        await supabase.from('teachers').delete().eq('id', teacherData.id);
+        await supabase.from('profiles').delete().eq('user_id', userData.id);
+        await supabase.from('users').delete().eq('id', userData.id);
+        res.status(500).json({ error: 'Failed to create teacher subject record' });
+        return;
+      }
     }
 
     // Generate JWT token

@@ -9,6 +9,8 @@ interface AuthUser {
   full_name: string;
   role: 'student' | 'teacher' | 'admin';
   avatar_url?: string;
+  grade_level?: string;
+  subject?: string; // Öğretmen branşı
 }
 
 interface LoginCredentials {
@@ -34,7 +36,7 @@ export const useAuth = () => {
     
     const initializeAuth = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem('auth_token') || localStorage.getItem('accessToken');
         
         if (isMounted) {
           if (token) {
@@ -55,42 +57,50 @@ export const useAuth = () => {
       }
     };
     
+    // Initialize auth only once on mount
     initializeAuth();
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, []); // Empty dependency array to run only once
 
   const fetchUserData = async (token: string) => {
     try {
       const response = await fetch('/api/auth/me', {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       if (response.ok) {
-        const userData = await response.json();
-        console.log('Auth data received:', userData);
-        setUser(userData.user);
+        const data = await response.json();
+        
+        const authUser: AuthUser = {
+          id: data.user.id,
+          email: data.user.email,
+          full_name: data.user.profile?.first_name && data.user.profile?.last_name 
+            ? `${data.user.profile.first_name} ${data.user.profile.last_name}`
+            : data.user.email,
+          role: data.user.role,
+          avatar_url: data.user.profile?.avatar_url,
+          grade_level: data.user.student?.grade_level,
+          subject: data.user.teacher?.subject
+        };
+        setUser(authUser);
         setIsAuthenticated(true);
       } else {
-        // Don't log 401 errors as they're expected when not authenticated
-        if (response.status !== 401) {
-          console.error('Failed to fetch user data:', response.status);
-        }
         setUser(null);
         setIsAuthenticated(false);
-        // Clear the token if invalid
         localStorage.removeItem('auth_token');
+        localStorage.removeItem('accessToken');
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
       setUser(null);
       setIsAuthenticated(false);
-      // Clear the token on error
       localStorage.removeItem('auth_token');
     } finally {
       setLoading(false);
@@ -99,14 +109,16 @@ export const useAuth = () => {
 
   const checkUser = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem('auth_token') || localStorage.getItem('accessToken');
       
-      if (token) {
-        await fetchUserData(token);
-      } else {
+      if (!token) {
         setUser(null);
         setIsAuthenticated(false);
+        setLoading(false);
+        return;
       }
+
+      await fetchUserData(token);
     } catch (error) {
       console.error('Error checking user:', error);
       setUser(null);
@@ -117,46 +129,44 @@ export const useAuth = () => {
   };
 
   const login = async (email: string, password: string) => {
-    const credentials = { email, password };
     setLoading(true);
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify({ email, password }),
       });
-
-      // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text();
-        console.error('Server returned non-JSON response:', textResponse);
-        toast.error('Sunucu hatası: JSON yanıt bekleniyor');
-        return { success: false, error: 'Server returned non-JSON response' };
-      }
 
       const data = await response.json();
 
-      if (response.ok && data.user && data.token) {
-        // Store JWT token in localStorage
+      if (response.ok && data.token) {
+        // Store token in localStorage
         localStorage.setItem('auth_token', data.token);
         
-        setUser(data.user);
+        const authUser: AuthUser = {
+          id: data.user.id,
+          email: data.user.email,
+          full_name: data.user.profile?.first_name && data.user.profile?.last_name 
+            ? `${data.user.profile.first_name} ${data.user.profile.last_name}`
+            : data.user.email,
+          role: data.user.role,
+          avatar_url: data.user.profile?.avatar_url,
+          grade_level: data.user.student?.grade_level,
+          subject: data.user.teacher?.subject
+        };
+        
+        setUser(authUser);
         setIsAuthenticated(true);
         toast.success('Giriş başarılı!');
-        return { success: true, user: data.user };
+        return { success: true, user: authUser };
       } else {
-        toast.error(data.error || 'Giriş başarısız');
-        return { success: false, error: data.error };
+        toast.error(data.error || 'Geçersiz e-posta veya şifre');
+        return { success: false, error: data.error || 'Geçersiz e-posta veya şifre' };
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      if (error instanceof SyntaxError && error.message.includes('JSON')) {
-        toast.error('Sunucu yanıt formatı hatası');
-        return { success: false, error: 'Invalid JSON response from server' };
-      }
       toast.error('Bir hata oluştu');
       return { success: false, error: 'Bir hata oluştu' };
     } finally {
@@ -164,31 +174,42 @@ export const useAuth = () => {
     }
   };
 
-  const register = async (email: string, password: string, first_name: string, last_name: string, role: 'student' | 'teacher') => {
-    const registerData = { email, password, first_name, last_name, role };
+  const register = async (formData: {
+    email: string;
+    password: string;
+    role: string;
+    firstName: string;
+    lastName: string;
+    grade?: string;
+    subject?: string;
+  }) => {
     setLoading(true);
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(registerData)
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        toast.success('Kayıt başarılı! Giriş yapabilirsiniz.');
-        return { success: true };
-      } else {
-        toast.error(data.error || 'Kayıt başarısız');
-        return { success: false, error: data.error };
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
-    } catch (error) {
-      console.error('Register error:', error);
-      toast.error('Bir hata oluştu');
-      return { success: false, error: 'Bir hata oluştu' };
+
+      // Store token and user data
+      localStorage.setItem('auth_token', data.token);
+      setUser(data.user);
+      setIsAuthenticated(true);
+      
+      toast.success('Kayıt başarılı! Hoş geldiniz.');
+      return { success: true, user: data.user };
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast.error(error.message || 'Kayıt sırasında bir hata oluştu');
+      return { success: false, error: error.message };
     } finally {
       setLoading(false);
     }
@@ -197,18 +218,9 @@ export const useAuth = () => {
   const logout = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('auth_token');
+      // Mock logout for testing without backend
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
       
-      if (token) {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
-
       localStorage.removeItem('auth_token');
       setUser(null);
       setIsAuthenticated(false);

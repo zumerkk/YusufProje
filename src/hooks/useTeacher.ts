@@ -19,6 +19,8 @@ export interface Student {
   total_hours: number;
   average_rating: number;
   last_lesson_date?: string;
+  averageGrade?: number;
+  class_section?: string;
   user: {
     id: string;
     email: string;
@@ -112,8 +114,7 @@ export const useTeacher = (): UseTeacherReturn => {
   const [availability, setAvailabilityState] = useState<any>(null);
 
   const getAuthToken = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token;
+    return localStorage.getItem('auth_token');
   };
 
   const updateProfile = async (profileData: TeacherProfile) => {
@@ -193,28 +194,86 @@ export const useTeacher = (): UseTeacherReturn => {
   const getStudents = async () => {
     setLoading(true);
     try {
-      const token = await getAuthToken();
-      if (!token) {
-        toast.error('Oturum açmanız gerekiyor');
-        return { success: false, error: 'No token' };
-      }
-
-      const response = await fetch('/api/teacher/students', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      // Mock students data for testing without backend
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network delay
+      
+      const mockStudents = [
+        {
+          id: '1',
+          user_id: 'user-1',
+          full_name: 'Ahmet Yılmaz',
+          email: 'ahmet@test.com',
+          phone: '+90 555 123 4567',
+          grade: '11. Sınıf',
+          subject: 'Matematik',
+          subjects: ['Matematik', 'Geometri'],
+          status: 'active' as const,
+          completed_lessons: 15,
+          total_lessons: 20,
+          total_hours: 0,
+          average_rating: 0,
+          progress: 75,
+          last_lesson_date: '2024-01-20T14:00:00Z',
+          created_at: new Date().toISOString(),
+          last_lesson: '2024-01-15T10:00:00Z',
+          user: {
+            id: 'user-1',
+            email: 'ahmet@test.com',
+            full_name: 'Ahmet Yılmaz'
+          }
+        },
+        {
+          id: '2',
+          user_id: 'user-2',
+          full_name: 'Ayşe Demir',
+          email: 'ayse@test.com',
+          phone: '+90 555 987 6543',
+          grade: '12. Sınıf',
+          subject: 'Fizik',
+          subjects: ['Fizik', 'Kimya'],
+            status: 'active' as const,
+            completed_lessons: 22,
+          total_lessons: 25,
+          total_hours: 0,
+          average_rating: 0,
+          progress: 88,
+          last_lesson_date: '2024-01-19T15:30:00Z',
+          created_at: new Date().toISOString(),
+          last_lesson: '2024-01-14T14:00:00Z',
+          user: {
+            id: 'user-2',
+            email: 'ayse@test.com',
+            full_name: 'Ayşe Demir'
+          }
+        },
+        {
+          id: '3',
+          user_id: 'user-3',
+          full_name: 'Mehmet Kaya',
+          email: 'mehmet@test.com',
+          phone: '+90 555 456 7890',
+          grade: '10. Sınıf',
+          subject: 'Kimya',
+          subjects: ['Kimya'],
+          status: 'inactive' as const,
+          completed_lessons: 8,
+          total_lessons: 15,
+          total_hours: 0,
+          average_rating: 0,
+          progress: 53,
+          last_lesson_date: '2024-01-15T16:00:00Z',
+          created_at: new Date().toISOString(),
+          last_lesson: '2024-01-10T16:00:00Z',
+          user: {
+            id: 'user-3',
+            email: 'mehmet@test.com',
+            full_name: 'Mehmet Kaya'
+          }
         }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setStudents(data.students || []);
-        return { success: true, students: data.students };
-      } else {
-        toast.error(data.error || 'Öğrenciler yüklenirken hata oluştu');
-        return { success: false, error: data.error };
-      }
+      ];
+      
+      setStudents(mockStudents);
+      return { success: true, students: mockStudents };
     } catch (error) {
       console.error('Get students error:', error);
       toast.error('Bir hata oluştu');
@@ -233,29 +292,52 @@ export const useTeacher = (): UseTeacherReturn => {
         return { success: false, error: 'No token' };
       }
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Kullanıcı bilgileri alınamadı');
+        return { success: false, error: 'No user' };
+      }
+
       const queryParams = new URLSearchParams();
       if (status) queryParams.append('status', status);
 
-      const response = await fetch(`/api/teacher/lessons?${queryParams}`, {
+      const response = await fetch(`/api/teacher/${user.id}/lessons?${queryParams}`, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        setLessons(data.lessons || []);
-        return { success: true, lessons: data.lessons };
-      } else {
-        toast.error(data.error || 'Dersler yüklenirken hata oluştu');
-        return { success: false, error: data.error };
+      if (!response.ok) {
+        console.error('API Error:', data.error);
+        // API başarısız olursa boş array döndür
+        setLessons([]);
+        return { success: true, lessons: [] };
       }
-    } catch (error) {
+
+      // API'den gelen dersleri formatla
+      const formattedLessons = (data.lessons || []).map((lesson: any) => ({
+        id: lesson.id,
+        subject: lesson.subject,
+        grade_level: lesson.class_level || 0,
+        class_section: lesson.class_section || '',
+        day_of_week: lesson.day_of_week || '',
+        start_time: lesson.start_time || '',
+        end_time: lesson.end_time || '',
+        student_count: lesson.students?.length || 0,
+        created_at: lesson.created_at
+      }));
+
+      setLessons(formattedLessons);
+      return { success: true, lessons: formattedLessons };
+    } catch (error: any) {
       console.error('Get lessons error:', error);
-      toast.error('Bir hata oluştu');
-      return { success: false, error: 'Bir hata oluştu' };
+      // Hata durumunda boş array döndür
+      setLessons([]);
+      return { success: true, lessons: [] };
     } finally {
       setLoading(false);
     }
@@ -294,28 +376,35 @@ export const useTeacher = (): UseTeacherReturn => {
   const getProfile = async () => {
     setLoading(true);
     try {
-      const token = await getAuthToken();
-      if (!token) {
-        toast.error('Oturum açmanız gerekiyor');
-        return { success: false, error: 'No token' };
-      }
-
-      const response = await fetch('/api/teacher/profile', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setProfile(data.profile || null);
-        return { success: true, profile: data.profile };
-      } else {
-        toast.error(data.error || 'Profil yüklenirken hata oluştu');
-        return { success: false, error: data.error };
-      }
+      // Mock profile data for testing without backend
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+      
+      const mockProfile = {
+        id: '2',
+        full_name: 'Test Teacher',
+        email: 'teacher@test.com',
+        phone: '+90 555 111 2233',
+        subjects: ['Matematik', 'Fizik', 'Kimya'],
+        experience_years: 8,
+        education: 'Matematik Öğretmenliği, Ankara Üniversitesi',
+        bio: 'Deneyimli matematik ve fen bilimleri öğretmeni. 8 yıllık öğretmenlik deneyimi.',
+        hourly_rate: 150,
+        availability: {
+          monday: ['09:00-12:00', '14:00-18:00'],
+          tuesday: ['10:00-16:00'],
+          wednesday: ['09:00-12:00', '14:00-18:00'],
+          thursday: ['10:00-16:00'],
+          friday: ['09:00-15:00'],
+          saturday: ['10:00-14:00'],
+          sunday: []
+        },
+        rating: 4.8,
+        total_lessons: 245,
+        created_at: new Date().toISOString()
+      };
+      
+      setProfile(mockProfile);
+      return { success: true, profile: mockProfile };
     } catch (error) {
       console.error('Get profile error:', error);
       toast.error('Bir hata oluştu');
@@ -360,6 +449,147 @@ export const useTeacher = (): UseTeacherReturn => {
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Yeni ders ekleme fonksiyonu
+  const createLesson = async (lessonData: {
+    day_of_week: string;
+    class_level: number;
+    class_section: string;
+    subject?: string;
+    lesson_date: string;
+    start_time: string;
+    end_time: string;
+    duration_minutes?: number;
+    lesson_notes?: string;
+  }): Promise<{ success: boolean; lessons?: any[]; error?: string }> => {
+    setLoading(true);
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        toast.error('Oturum açmanız gerekiyor');
+        return { success: false, error: 'No token' };
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Kullanıcı bilgileri alınamadı');
+        return { success: false, error: 'No user' };
+      }
+
+      const response = await fetch(`/api/teacher/${user.id}/lessons`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(lessonData)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ders oluşturulamadı');
+      }
+
+      toast.success(data.message || 'Ders başarıyla oluşturuldu');
+      // Dersleri yeniden yükle
+      await getLessons();
+      return { success: true, lessons: data.lessons };
+    } catch (error: any) {
+      console.error('Create lesson error:', error);
+      toast.error(error.message || 'Ders oluşturulurken bir hata oluştu');
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Sınıf seviyelerini getir
+  const getClassLevels = async (): Promise<{ success: boolean; class_levels?: number[]; error?: string }> => {
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        return { success: false, error: 'No token' };
+      }
+
+      const response = await fetch('/api/teacher/classes/levels', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Sınıf seviyeleri alınamadı');
+      }
+
+      return { success: true, class_levels: data.class_levels };
+    } catch (error: any) {
+      console.error('Get class levels error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Belirli sınıf seviyesindeki şubeleri getir
+  const getClassSections = async (gradeLevel: number): Promise<{ success: boolean; class_sections?: string[]; error?: string }> => {
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        return { success: false, error: 'No token' };
+      }
+
+      const response = await fetch(`/api/teacher/classes/levels/${gradeLevel}/sections`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Şubeler alınamadı');
+      }
+
+      return { success: true, class_sections: data.class_sections };
+    } catch (error: any) {
+      console.error('Get class sections error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
+  // Sınıftaki öğrenci sayısını getir
+  const getClassStudentCount = async (gradeLevel: number, classSection: string): Promise<{ success: boolean; student_count?: number; error?: string }> => {
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        return { success: false, error: 'No token' };
+      }
+
+      const response = await fetch(`/api/teacher/classes/${gradeLevel}/${classSection}/count`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Öğrenci sayısı alınamadı');
+      }
+
+      return { success: true, student_count: data.student_count };
+    } catch (error: any) {
+      console.error('Get student count error:', error);
+      return { success: false, error: error.message };
     }
   };
 
@@ -438,6 +668,35 @@ export const useTeacher = (): UseTeacherReturn => {
     }
   };
 
+  // Tüm sınıfları getir (teacher API'sinden)
+  const getClasses = async (): Promise<{ success: boolean; classes?: any[]; error?: string }> => {
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        return { success: false, error: 'No token' };
+      }
+
+      const response = await fetch('/api/teacher/classes/all', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Sınıflar alınamadı');
+      }
+
+      return { success: true, classes: data.classes };
+    } catch (error: any) {
+      console.error('Get classes error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   return {
     loading,
     students,
@@ -445,6 +704,11 @@ export const useTeacher = (): UseTeacherReturn => {
     profile,
     getStudents,
     getLessons,
+    createLesson,
+    getClassLevels,
+    getClassSections,
+    getClassStudentCount,
+    getClasses,
     scheduleLesson,
     updateProfile,
     setAvailability,

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Token</title>
+</head>
+<body>
+    <h1>Debug Token Setup</h1>
+    <button onclick="setToken()">Set Admin Token</button>
+    <button onclick="checkToken()">Check Token</button>
+    <button onclick="testAPI()">Test API</button>
+    <div id="output"></div>
+
+    <script>
+        function setToken() {
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijc4YmM4NzkwLWUwNzUtNGZiZC1iMTg1LTZjZmMzZDY1YmVmOSIsImVtYWlsIjoiYWRtaW5AdGVzdC5jb20iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NTg2NTE0NjEsImV4cCI6MTc1ODczNzg2MX0.2SAdW3TdRTqF1wdVepGOeEHInEXfW7DN5gwUAvS855k';
+            localStorage.setItem('auth_token', token);
+            document.getElementById('output').innerHTML = 'Token set!';
+        }
+
+        function checkToken() {
+            const token = localStorage.getItem('auth_token');
+            document.getElementById('output').innerHTML = `Token: ${token ? 'exists' : 'missing'}`;
+        }
+
+        async function testAPI() {
+            const token = localStorage.getItem('auth_token');
+            try {
+                const response = await fetch('/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('output').innerHTML = `API Response: ${response.status} - ${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `API Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -34,6 +34,16 @@ import { useTeacher } from '../hooks/useTeacher';
 import { useAuth } from '../hooks/useAuth';
 import { Student } from '../../shared/types';
 
+interface TeacherActivity {
+  id: string;
+  type: 'student_added' | 'grade_updated' | 'lesson_created' | 'assignment_created';
+  title: string;
+  description: string;
+  timestamp: string;
+  icon_type: 'plus' | 'edit' | 'book' | 'file';
+  icon_color: 'green' | 'blue' | 'purple' | 'orange';
+}
+
 interface LocalStudent extends Student {
   user_id: string;
   courses: number;
@@ -59,6 +69,10 @@ interface Course {
   status: 'active' | 'draft' | 'completed';
   thumbnail: string;
   createdAt: string;
+  duration?: string;
+  price?: number;
+  level?: string;
+  description?: string;
 }
 
 interface Lesson {
@@ -75,129 +89,11 @@ interface Lesson {
 
 // Message interface removed - messages functionality removed
 
-const mockStudents: LocalStudent[] = [
-  {
-    id: '1',
-    user_id: 'user1',
-    profile_id: 'profile1',
-    courses: 3,
-    averageGrade: 87,
-    lastActivity: '2 saat önce',
-    status: 'active',
-    totalStudyTime: 1250,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    user: {
-      full_name: 'Elif Yılmaz',
-      email: 'elif@example.com',
-      avatar_url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Portrait%20of%20a%20Turkish%20female%20student%2C%20friendly%20smile%2C%20study%20environment&image_size=square'
-    }
-  },
-  {
-    id: '2',
-    user_id: 'user2',
-    profile_id: 'profile2',
-    courses: 2,
-    averageGrade: 92,
-    lastActivity: '1 gün önce',
-    status: 'active',
-    totalStudyTime: 980,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    user: {
-      full_name: 'Ahmet Kaya',
-      email: 'ahmet@example.com',
-      avatar_url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Portrait%20of%20a%20Turkish%20male%20student%2C%20confident%20expression%2C%20books%20background&image_size=square'
-    }
-  },
-  {
-    id: '3',
-    user_id: 'user3',
-    profile_id: 'profile3',
-    courses: 4,
-    averageGrade: 78,
-    lastActivity: '3 gün önce',
-    status: 'inactive',
-    totalStudyTime: 750,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    user: {
-      full_name: 'Zeynep Demir',
-      email: 'zeynep@example.com',
-      avatar_url: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Portrait%20of%20a%20Turkish%20female%20student%2C%20cheerful%20smile%2C%20classroom%20setting&image_size=square'
-    }
-  }
-];
+// Mock students removed - using real data from API
 
-const mockCourses: Course[] = [
-  {
-    id: 1,
-    title: 'Matematik Temelleri',
-    subject: 'Matematik',
-    studentsCount: 45,
-    lessonsCount: 20,
-    averageRating: 4.8,
-    status: 'active',
-    thumbnail: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Mathematics%20course%20thumbnail%2C%20equations%2C%20geometric%20shapes%2C%20educational%20design&image_size=landscape_4_3',
-    createdAt: '2024-01-15'
-  },
-  {
-    id: 2,
-    title: 'Fizik Mekaniği',
-    subject: 'Fizik',
-    studentsCount: 32,
-    lessonsCount: 18,
-    averageRating: 4.6,
-    status: 'active',
-    thumbnail: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Physics%20course%20thumbnail%2C%20mechanics%2C%20formulas%2C%20laboratory%20equipment&image_size=landscape_4_3',
-    createdAt: '2024-01-10'
-  },
-  {
-    id: 3,
-    title: 'Kimya Temelleri',
-    subject: 'Kimya',
-    studentsCount: 28,
-    lessonsCount: 15,
-    averageRating: 4.9,
-    status: 'draft',
-    thumbnail: 'https://trae-api-sg.mchost.guru/api/ide/v1/text_to_image?prompt=Chemistry%20course%20thumbnail%2C%20molecular%20structures%2C%20test%20tubes%2C%20colorful%20reactions&image_size=landscape_4_3',
-    createdAt: '2024-01-20'
-  }
-];
+// Mock courses removed - using real data from API
 
-const mockLessons: Lesson[] = [
-  {
-    id: 1,
-    title: 'Türev Kavramı',
-    courseId: 1,
-    courseName: 'Matematik Temelleri',
-    duration: 45,
-    views: 234,
-    completionRate: 87,
-    status: 'published'
-  },
-  {
-    id: 2,
-    title: 'Newton Yasaları',
-    courseId: 2,
-    courseName: 'Fizik Mekaniği',
-    duration: 50,
-    views: 189,
-    completionRate: 92,
-    scheduledAt: '2024-01-25 14:00',
-    status: 'scheduled'
-  },
-  {
-    id: 3,
-    title: 'Mol Kavramı',
-    courseId: 3,
-    courseName: 'Kimya Temelleri',
-    duration: 40,
-    views: 0,
-    completionRate: 0,
-    status: 'draft'
-  }
-];
+// Mock lessons removed - using real data from API
 
 // mockMessages removed - messages functionality removed
 
@@ -206,7 +102,7 @@ const TeacherDashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [messages, setMessages] = useState([]);
   const [stats, setStats] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState<LocalStudent | null>(null);
@@ -218,6 +114,26 @@ const TeacherDashboard: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [buttonLoading, setButtonLoading] = useState<string | null>(null);
+  const [recentActivities, setRecentActivities] = useState<TeacherActivity[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [selectedGrade, setSelectedGrade] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [expandedGrades, setExpandedGrades] = useState<Set<string>>(new Set());
+  const [showAddLessonModal, setShowAddLessonModal] = useState(false);
+  const [newLessonData, setNewLessonData] = useState({
+    name: '',
+    description: '',
+    startDate: '',
+    endDate: '',
+    instructor: '',
+    gradeLevel: '',
+    section: '',
+    timeSlot: '',
+    duration: 60
+  });
+  const [addLessonLoading, setAddLessonLoading] = useState(false);
+  const [classes, setClasses] = useState<any[]>([]);
+  const [classesLoading, setClassesLoading] = useState(false);
   
   // Refs for dropdown management
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -230,7 +146,8 @@ const TeacherDashboard: React.FC = () => {
     lessons,
     loading,
     getStudents,
-    getLessons
+    getLessons,
+    getClasses
   } = useTeacher();
   
   // Mock notifications for teacher
@@ -264,15 +181,179 @@ const TeacherDashboard: React.FC = () => {
     }
   ]);
   
+  // Sınıfları çek
+  const fetchClasses = async () => {
+    setClassesLoading(true);
+    try {
+      const result = await getClasses();
+      if (result.success && result.classes) {
+        setClasses(result.classes);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+    } finally {
+      setClassesLoading(false);
+    }
+  };
+
   useEffect(() => {
     getStudents();
     getLessons();
+    fetchRecentActivities();
+    fetchClasses();
   }, []);
 
+  // ESC key handler for modal
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showAddLessonModal) {
+        setShowAddLessonModal(false);
+        setNewLessonData({
+          name: '',
+          description: '',
+          startDate: '',
+          endDate: '',
+          instructor: '',
+          gradeLevel: '',
+          section: '',
+          timeSlot: '',
+          duration: 60
+        });
+      }
+    };
+
+    if (showAddLessonModal) {
+      document.addEventListener('keydown', handleEscKey);
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [showAddLessonModal]);
+
+  // Handle overlay click
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setShowAddLessonModal(false);
+      setNewLessonData({
+        name: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        instructor: '',
+        gradeLevel: '',
+        section: '',
+        timeSlot: '',
+        duration: 60
+      });
+    }
+  };
+
+  const fetchRecentActivities = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setActivitiesLoading(true);
+      const response = await fetch(`/api/teacher/${user.id}/activities`);
+      if (response.ok) {
+        const data = await response.json();
+        setRecentActivities(data.activities || []);
+      } else {
+        console.error('Failed to fetch activities');
+      }
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    } finally {
+      setActivitiesLoading(false);
+    }
+  };
+
+  const handleAddLesson = async () => {
+    if (!user?.id) return;
+    
+    try {
+      setAddLessonLoading(true);
+      
+      // Form validation
+      if (!newLessonData.name || !newLessonData.startDate || !newLessonData.endDate || 
+          !newLessonData.instructor || !newLessonData.gradeLevel || !newLessonData.section || 
+          !newLessonData.timeSlot) {
+        alert('Lütfen tüm zorunlu alanları doldurunuz.');
+        return;
+      }
+      
+      // Date validation
+      const startDate = new Date(newLessonData.startDate);
+      const endDate = new Date(newLessonData.endDate);
+      
+      if (endDate <= startDate) {
+        alert('Bitiş tarihi başlangıç tarihinden sonra olmalıdır.');
+        return;
+      }
+      
+      // Create lesson data
+      const lessonData = {
+        subject: newLessonData.name,
+        description: newLessonData.description,
+        teacher_id: user.id,
+        grade_level: newLessonData.gradeLevel,
+        section: newLessonData.section,
+        start_date: newLessonData.startDate,
+        end_date: newLessonData.endDate,
+        time_slot: newLessonData.timeSlot,
+        duration_minutes: newLessonData.duration,
+        status: 'scheduled'
+      };
+      
+      const response = await fetch('/api/lessons', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(lessonData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Success feedback
+        alert('Ders başarıyla eklendi!');
+        
+        // Reset form and close modal
+        setNewLessonData({
+          name: '',
+          description: '',
+          startDate: '',
+          endDate: '',
+          instructor: '',
+          gradeLevel: '',
+          section: '',
+          timeSlot: '',
+          duration: 60
+        });
+        setShowAddLessonModal(false);
+        
+        // Refresh lessons list
+        getLessons();
+        
+      } else {
+        const errorData = await response.json();
+        alert(`Ders eklenirken hata oluştu: ${errorData.message || 'Bilinmeyen hata'}`);
+      }
+      
+    } catch (error) {
+      console.error('Error adding lesson:', error);
+      alert('Ders eklenirken bir hata oluştu. Lütfen tekrar deneyiniz.');
+    } finally {
+      setAddLessonLoading(false);
+    }
+  };
+
   const totalStudents = students?.length || 0;
-  const activeCourses = courses?.filter(course => course.status === 'active').length || 0;
+  const activeCourses = lessons?.filter(lesson => lesson.status === 'scheduled').length || 0;
   const totalLessons = lessons?.length || 0;
-  const averageRating = courses?.length > 0 ? courses.reduce((sum, course) => sum + (course.averageRating || 0), 0) / courses.length : 0;
   const unreadMessages = messages?.filter(msg => !msg.isRead && !msg.read).length || 0;
 
   const getStatusColor = (status: string) => {
@@ -332,7 +413,7 @@ const TeacherDashboard: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const filteredStudents = (students || mockStudents).filter(student => {
+  const filteredStudents = (students || []).filter(student => {
     const matchesSearch = student.user?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = selectedFilter === 'all' || (student as LocalStudent).status === selectedFilter;
@@ -581,8 +662,7 @@ const TeacherDashboard: React.FC = () => {
           <nav className="flex space-x-1 py-4">
             {[
               { id: 'overview', label: 'Genel Bakış', icon: BarChart3 },
-              { id: 'students', label: 'Öğrenciler', icon: Users },
-              { id: 'courses', label: 'Kurslarım', icon: BookOpen },
+              { id: 'students', label: 'Sınıflar', icon: Users },
               { id: 'lessons', label: 'Dersler', icon: Video },
               { id: 'schedule', label: 'Program', icon: Calendar }
             ].map((tab) => {
@@ -642,7 +722,7 @@ const TeacherDashboard: React.FC = () => {
                         <BookOpen className="h-6 w-6 text-green-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm text-gray-600">Aktif Kurs</p>
+                        <p className="text-sm text-gray-600">Toplam Sınıf</p>
                         <p className="text-2xl font-bold text-gray-900">{stats?.activeCourses || activeCourses}</p>
                       </div>
                     </div>
@@ -663,11 +743,11 @@ const TeacherDashboard: React.FC = () => {
                   <div className="bg-white p-6 rounded-2xl shadow-sm">
                     <div className="flex items-center">
                       <div className="bg-purple-100 p-3 rounded-lg">
-                        <Star className="h-6 w-6 text-purple-600" />
+                        <BookOpen className="h-6 w-6 text-purple-600" />
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm text-gray-600">Ortalama Puan</p>
-                        <p className="text-2xl font-bold text-gray-900">{averageRating.toFixed(1)}</p>
+                        <p className="text-sm text-gray-600">Branş</p>
+                        <p className="text-2xl font-bold text-gray-900">{user?.subject || 'Belirtilmemiş'}</p>
                       </div>
                     </div>
                   </div>
@@ -678,37 +758,46 @@ const TeacherDashboard: React.FC = () => {
                   {/* Recent Students */}
                   <div className="bg-white p-6 rounded-2xl shadow-sm">
                     <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-bold text-gray-900">Son Aktif Öğrenciler</h3>
+                      <h3 className="text-lg font-bold text-gray-900">Son İşlemler</h3>
                       <Link to="#" className="text-blue-600 hover:text-blue-700 text-sm font-medium">
                         Tümünü Gör
                       </Link>
                     </div>
                     <div className="space-y-4">
-                      {(students || []).slice(0, 3).map((student) => (
-                        <div key={student.id} className="flex items-center space-x-4">
-                          {student.user?.avatar_url ? (
-                            <img
-                              src={student.user.avatar_url}
-                              alt={student.user?.full_name || 'Student'}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                              <span className="text-white font-medium text-sm">
-                                {(student.user?.full_name)?.charAt(0) || 'S'}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{student.user?.full_name || 'Öğrenci'}</h4>
-                            <p className="text-sm text-gray-600">Sınıf: {student.grade_level || 'Belirtilmemiş'}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-500">{student.school_name || 'Okul bilgisi yok'}</p>
-                            <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
-                          </div>
+                      {activitiesLoading ? (
+                        <div className="flex justify-center items-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
                         </div>
-                      ))}
+                      ) : recentActivities.length > 0 ? (
+                        recentActivities.map((activity) => {
+                          const IconComponent = activity.icon_type === 'plus' ? Plus : 
+                                             activity.icon_type === 'edit' ? Edit :
+                                             activity.icon_type === 'book' ? BookOpen : FileText;
+                          const iconColorClass = activity.icon_color === 'green' ? 'bg-green-100 text-green-600' :
+                                                activity.icon_color === 'blue' ? 'bg-blue-100 text-blue-600' :
+                                                activity.icon_color === 'purple' ? 'bg-purple-100 text-purple-600' :
+                                                'bg-orange-100 text-orange-600';
+                          
+                          return (
+                            <div key={activity.id} className="flex items-center space-x-4">
+                              <div className={`w-10 h-10 ${iconColorClass} rounded-full flex items-center justify-center`}>
+                                <IconComponent className="h-5 w-5" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-medium text-gray-900">{activity.title}</h4>
+                                <p className="text-sm text-gray-600">{activity.description}</p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm text-gray-500">{activity.timestamp}</p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">Henüz aktivite bulunmuyor.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -737,18 +826,176 @@ const TeacherDashboard: React.FC = () => {
                 </div>
               </>
             )}
+            
+            {/* Selected Class Detail Modal */}
+            {selectedGrade && selectedClass && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+                  {/* Modal Header */}
+                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-6 text-white">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                          <span className="text-white font-bold text-2xl">{selectedGrade}{selectedClass}</span>
+                        </div>
+                        <div>
+                          <h2 className="text-3xl font-bold">{selectedGrade}{selectedClass} Sınıfı</h2>
+                          <p className="text-purple-100">
+                            {students?.filter(s => s.grade_level?.toString() === selectedGrade && (s.class_section || 'A') === selectedClass).length || 0} öğrenci
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setSelectedGrade(null);
+                          setSelectedClass(null);
+                        }}
+                        className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Modal Content */}
+                  <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                    {/* Class Stats */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 text-center">
+                        <div className="text-3xl font-bold text-blue-600">
+                          {students?.filter(s => s.grade_level?.toString() === selectedGrade && (s.class_section || 'A') === selectedClass).length || 0}
+                        </div>
+                        <div className="text-sm text-blue-600 font-medium mt-2">Toplam Öğrenci</div>
+                      </div>
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 text-center">
+                        <div className="text-3xl font-bold text-green-600">
+                          {students?.filter(s => s.grade_level?.toString() === selectedGrade && (s.class_section || 'A') === selectedClass && s.status === 'active').length || 0}
+                        </div>
+                        <div className="text-sm text-green-600 font-medium mt-2">Aktif Öğrenci</div>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 text-center">
+                        <div className="text-3xl font-bold text-purple-600">
+                          {(() => {
+                            const classStudents = students?.filter(s => s.grade_level?.toString() === selectedGrade && (s.class_section || 'A') === selectedClass) || [];
+                            return Math.round(classStudents.reduce((acc, s) => acc + (s.averageGrade || 0), 0) / classStudents.length) || 0;
+                          })()}
+                        </div>
+                        <div className="text-sm text-purple-600 font-medium mt-2">Ortalama Not</div>
+                      </div>
+                      <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 text-center">
+                        <div className="text-3xl font-bold text-orange-600">
+                          {lessons?.filter(lesson => {
+                            const student = students?.find(s => s.user_id === lesson.student_id);
+                            return student?.grade_level?.toString() === selectedGrade && (student.class_section || 'A') === selectedClass;
+                          }).length || 0}
+                        </div>
+                        <div className="text-sm text-orange-600 font-medium mt-2">Toplam Ders</div>
+                      </div>
+                    </div>
+                    
+                    {/* Students List */}
+                    <div className="bg-white rounded-2xl border border-gray-200">
+                      <div className="p-6 border-b border-gray-200">
+                        <h3 className="text-xl font-bold text-gray-900">Sınıf Öğrencileri</h3>
+                      </div>
+                      <div className="divide-y divide-gray-200">
+                        {students?.filter(s => s.grade_level?.toString() === selectedGrade && (s.class_section || 'A') === selectedClass).map((student, index) => (
+                          <div key={student.id} className="p-6 hover:bg-gray-50 transition-colors">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-4">
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold">
+                                  {index + 1}
+                                </div>
+                                {student.user?.avatar_url ? (
+                                  <img
+                                    src={student.user.avatar_url}
+                                    alt={student.user?.full_name || 'Student'}
+                                    className="w-12 h-12 rounded-xl object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                                    <span className="text-white font-bold">
+                                      {(student.user?.full_name)?.charAt(0) || 'S'}
+                                    </span>
+                                  </div>
+                                )}
+                                <div>
+                                  <h4 className="text-lg font-semibold text-gray-900">
+                                    {student.user?.full_name || 'Öğrenci'}
+                                  </h4>
+                                  <p className="text-sm text-gray-600">
+                                    {student.user?.email || 'E-posta yok'}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center space-x-6">
+                                <div className="text-center">
+                                  <div className="text-lg font-bold text-blue-600">
+                                    {lessons?.filter(lesson => lesson.student_id === student.user_id).length || 0}
+                                  </div>
+                                  <div className="text-xs text-gray-500">Ders</div>
+                                </div>
+                                <div className="text-center">
+                                  <div className="text-lg font-bold text-green-600">
+                                    {student.averageGrade || 0}
+                                  </div>
+                                  <div className="text-xs text-gray-500">Ortalama</div>
+                                </div>
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                  student.status === 'active' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                                }`}>
+                                  <div className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
+                                    student.status === 'active' ? 'bg-green-500' : 'bg-red-500'
+                                  }`}></div>
+                                  {student.status === 'active' ? 'Aktif' : 'Pasif'}
+                                </span>
+                                <div className="flex space-x-2">
+                                  <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <Eye className="h-4 w-4" />
+                                  </button>
+                                  <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                                    <Edit className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )) || (
+                          <div className="p-12 text-center text-gray-500">
+                            <div className="text-6xl mb-4">📚</div>
+                            <h3 className="text-lg font-medium mb-2">Bu sınıfta henüz öğrenci yok</h3>
+                            <p className="text-sm">Yeni öğrenci eklemek için "Öğrenci Ekle" butonunu kullanın.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Students Tab */}
+        {/* Students Tab - Redesigned Classes System */}
         {activeTab === 'students' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900">Öğrenciler</h2>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
-                <Plus className="h-5 w-5 mr-2" />
-                Öğrenci Ekle
-              </button>
+              <h2 className="text-2xl font-bold text-gray-900">Sınıflar</h2>
+              <div className="flex gap-3">
+                <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Yeni Sınıf
+                </button>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                  <Plus className="h-5 w-5 mr-2" />
+                  Öğrenci Ekle
+                </button>
+              </div>
             </div>
 
             {/* Search and Filter */}
@@ -758,7 +1005,7 @@ const TeacherDashboard: React.FC = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     type="text"
-                    placeholder="Öğrenci ara..."
+                    placeholder="Sınıf veya öğrenci ara..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -770,9 +1017,12 @@ const TeacherDashboard: React.FC = () => {
                     onChange={(e) => setSelectedFilter(e.target.value)}
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="all">Tüm Durumlar</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Pasif</option>
+                    <option value="all">Tüm Sınıflar</option>
+                    <option value="4">4. Sınıf</option>
+                    <option value="5">5. Sınıf</option>
+                    <option value="6">6. Sınıf</option>
+                    <option value="7">7. Sınıf</option>
+                    <option value="8">8. Sınıf</option>
                   </select>
                   <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     <Filter className="h-5 w-5" />
@@ -781,84 +1031,145 @@ const TeacherDashboard: React.FC = () => {
               </div>
             </div>
 
-            {loading ? (
+            {classesLoading ? (
               <div className="flex justify-center items-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
               </div>
+            ) : classes.length === 0 ? (
+              <div className="text-center py-16 bg-white/80 backdrop-blur-lg rounded-3xl border-2 border-dashed border-gray-300">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Users className="h-10 w-10 text-blue-500" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">Henüz sınıf bulunmuyor</h3>
+                <p className="text-gray-600 text-lg max-w-md mx-auto">
+                  Admin tarafından sınıflar oluşturulduktan sonra burada görüntülenecektir.
+                </p>
+              </div>
             ) : (
-              /* Students Grid */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredStudents.map((student) => (
-                  <div key={student.id} className="group bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20">
-                    {/* Student Header */}
-                    <div className="flex items-center space-x-4 mb-6">
-                      {student.user?.avatar_url ? (
-                        <img
-                          src={student.user.avatar_url}
-                          alt={student.user?.full_name || 'Student'}
-                          className="w-16 h-16 rounded-2xl object-cover shadow-lg"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                          <span className="text-white font-bold text-xl">
-                            {(student.user?.full_name)?.charAt(0) || 'S'}
-                          </span>
+              /* Real Classes from Backend */
+              <div className="space-y-4">
+                {['4', '5', '6', '7', '8'].map((grade) => {
+                  const gradeClasses = classes.filter(cls => 
+                    cls.grade_level?.toString() === grade &&
+                    (selectedFilter === 'all' || selectedFilter === grade) &&
+                    (searchTerm === '' || 
+                     cls.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                     cls.section?.toLowerCase().includes(searchTerm.toLowerCase()))
+                  );
+                  
+                  if (gradeClasses.length === 0 && selectedFilter !== 'all' && selectedFilter !== grade) {
+                    return null;
+                  }
+                  
+                  const isExpanded = expandedGrades.has(grade);
+                  const totalStudents = gradeClasses.reduce((sum, cls) => sum + (cls.student_count || 0), 0);
+                  
+                  return (
+                    <div key={grade} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                      {/* Grade Header */}
+                      <div 
+                        className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-indigo-50 cursor-pointer hover:from-blue-100 hover:to-indigo-100 transition-colors"
+                        onClick={() => {
+                          const newExpanded = new Set(expandedGrades);
+                          if (isExpanded) {
+                            newExpanded.delete(grade);
+                          } else {
+                            newExpanded.add(grade);
+                          }
+                          setExpandedGrades(newExpanded);
+                        }}
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">{grade}</span>
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900">{grade}. Sınıflar</h3>
+                            <p className="text-sm text-gray-600">
+                              {totalStudents} öğrenci • {gradeClasses.length} sınıf
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-blue-600">{totalStudents}</div>
+                            <div className="text-xs text-gray-500">Toplam Öğrenci</div>
+                          </div>
+                          <div className={`transform transition-transform duration-200 ${
+                            isExpanded ? 'rotate-180' : ''
+                          }`}>
+                            <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Expandable Classes Content */}
+                      {isExpanded && (
+                        <div className="p-6 border-t border-gray-100">
+                          {gradeClasses.length === 0 ? (
+                            <div className="text-center py-8">
+                              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Users className="h-8 w-8 text-gray-400" />
+                              </div>
+                              <h4 className="text-lg font-medium text-gray-900 mb-2">{grade}. sınıf bulunamadı</h4>
+                              <p className="text-gray-600">Bu seviyede henüz sınıf oluşturulmamış.</p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {gradeClasses.map((classItem) => (
+                                <div 
+                                  key={classItem.id} 
+                                  className="group bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105"
+                                  onClick={() => {
+                                    setSelectedGrade(grade);
+                                    setSelectedClass(classItem.section);
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                                        <span className="text-white font-bold">{classItem.grade_level}{classItem.section}</span>
+                                      </div>
+                                      <div>
+                                        <h4 className="text-lg font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+                                          {classItem.display_name}
+                                        </h4>
+                                        <p className="text-sm text-gray-600">{classItem.student_count || 0} öğrenci</p>
+                                      </div>
+                                    </div>
+                                    <Eye className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="bg-blue-50 rounded-lg p-3 text-center">
+                                      <div className="text-lg font-bold text-blue-600">
+                                        {classItem.student_count || 0}
+                                      </div>
+                                      <div className="text-xs text-blue-600">Öğrenci</div>
+                                    </div>
+                                    <div className="bg-green-50 rounded-lg p-3 text-center">
+                                      <div className="text-lg font-bold text-green-600">
+                                        {classItem.grade_level}
+                                      </div>
+                                      <div className="text-xs text-green-600">Seviye</div>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex items-center justify-between text-sm text-gray-500">
+                                    <span>Oluşturulma: {new Date(classItem.created_at).toLocaleDateString('tr-TR')}</span>
+                                    <span className="text-purple-600 font-medium group-hover:text-purple-700">Detaylar →</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                          {student.user?.full_name || 'Öğrenci'}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {student.user?.email || 'E-posta yok'}
-                        </p>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></div>
-                          Aktif
-                        </span>
-                      </div>
                     </div>
-
-                    {/* Student Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-600">
-                          {lessons?.filter(lesson => lesson.student_id === student.user_id).length || 0}
-                        </div>
-                        <div className="text-xs text-blue-600 font-medium mt-1">Toplam Ders</div>
-                      </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
-                        <div className="text-2xl font-bold text-purple-600">
-                          {student.grade_level || 'N/A'}
-                        </div>
-                        <div className="text-xs text-purple-600 font-medium mt-1">Sınıf</div>
-                      </div>
-                    </div>
-
-                    {/* Student Info */}
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <BookOpen className="h-4 w-4 mr-2 text-gray-400" />
-                        <span>{student.school_name || 'Okul bilgisi yok'}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                        <span>Son aktivite: Bugün</span>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex space-x-2">
-                      <button className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2.5 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 flex items-center justify-center font-medium shadow-lg hover:shadow-xl">
-                        <Eye className="h-4 w-4 mr-2" />
-                        Görüntüle
-                      </button>
-                      <button className="bg-white/80 backdrop-blur-sm text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-100 transition-all duration-200 border border-gray-200 shadow-sm hover:shadow-md">
-                        <Edit className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -881,7 +1192,7 @@ const TeacherDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(courses || mockCourses).map((course) => (
+                {(courses || []).map((course) => (
                   <div key={course.id} className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="w-full h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                       <span className="text-white text-2xl font-bold">
@@ -906,13 +1217,13 @@ const TeacherDashboard: React.FC = () => {
                           <div className="text-xs text-gray-500">Seviye</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{course.duration || 'Süre'}</div>
+                          <div className="text-2xl font-bold text-green-600">{course.duration || course.lessonsCount + ' Ders'}</div>
                           <div className="text-xs text-gray-500">Süre</div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                         <span>Fiyat: {course.price ? `${course.price} TL` : 'Ücretsiz'}</span>
-                        <span>{new Date(course.created_at).toLocaleDateString('tr-TR')}</span>
+                        <span>{new Date(course.createdAt).toLocaleDateString('tr-TR')}</span>
                       </div>
                       
                       <div className="flex space-x-2">
@@ -937,7 +1248,10 @@ const TeacherDashboard: React.FC = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-900">Derslerim</h2>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+              <button 
+                onClick={() => setShowAddLessonModal(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
                 <Plus className="h-5 w-5 mr-2" />
                 Yeni Ders
               </button>
@@ -950,7 +1264,7 @@ const TeacherDashboard: React.FC = () => {
             ) : (
               /* Lessons Grid */
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(lessons || mockLessons).map((lesson) => (
+                {(lessons || []).map((lesson) => (
                   <div key={lesson.id} className="group bg-white/80 backdrop-blur-sm rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20">
                     {/* Lesson Header */}
                     <div className="flex items-center justify-between mb-4">
@@ -1110,6 +1424,241 @@ const TeacherDashboard: React.FC = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Add Lesson Modal */}
+         {showAddLessonModal && (
+           <div 
+             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+             onClick={handleOverlayClick}
+           >
+            <div 
+               className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+               onClick={(e) => e.stopPropagation()}
+             >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className="text-2xl font-bold text-gray-900">Yeni Ders Ekle</h3>
+                <button
+                  onClick={() => {
+                    setShowAddLessonModal(false);
+                    setNewLessonData({
+                      name: '',
+                      description: '',
+                      startDate: '',
+                      endDate: '',
+                      instructor: '',
+                      gradeLevel: '',
+                      section: '',
+                      timeSlot: '',
+                      duration: 60
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-6 space-y-6">
+                {/* Ders Adı */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ders Adı *
+                  </label>
+                  <input
+                    type="text"
+                    value={newLessonData.name}
+                    onChange={(e) => setNewLessonData({ ...newLessonData, name: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Örn: Matematik - Cebir"
+                    required
+                  />
+                </div>
+
+                {/* Ders Açıklaması */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ders Açıklaması
+                  </label>
+                  <textarea
+                    value={newLessonData.description}
+                    onChange={(e) => setNewLessonData({ ...newLessonData, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                    placeholder="Dersin içeriği ve hedefleri hakkında kısa açıklama..."
+                  />
+                </div>
+
+                {/* Tarih Aralığı */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Başlangıç Tarihi *
+                    </label>
+                    <input
+                      type="date"
+                      value={newLessonData.startDate}
+                      onChange={(e) => setNewLessonData({ ...newLessonData, startDate: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bitiş Tarihi *
+                    </label>
+                    <input
+                      type="date"
+                      value={newLessonData.endDate}
+                      onChange={(e) => setNewLessonData({ ...newLessonData, endDate: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Eğitmen Seçimi */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Eğitmen *
+                  </label>
+                  <select
+                    value={newLessonData.instructor}
+                    onChange={(e) => setNewLessonData({ ...newLessonData, instructor: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    required
+                  >
+                    <option value="">Eğitmen Seçiniz</option>
+                    <option value={user?.full_name || 'Mevcut Öğretmen'}>{user?.full_name || 'Mevcut Öğretmen'}</option>
+                  </select>
+                </div>
+
+                {/* Sınıf ve Şube */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Sınıf Seviyesi *
+                    </label>
+                    <select
+                      value={newLessonData.gradeLevel}
+                      onChange={(e) => setNewLessonData({ ...newLessonData, gradeLevel: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    >
+                      <option value="">Sınıf Seçiniz</option>
+                      <option value="4">4. Sınıf</option>
+                      <option value="5">5. Sınıf</option>
+                      <option value="6">6. Sınıf</option>
+                      <option value="7">7. Sınıf</option>
+                      <option value="8">8. Sınıf</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Şube *
+                    </label>
+                    <select
+                      value={newLessonData.section}
+                      onChange={(e) => setNewLessonData({ ...newLessonData, section: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    >
+                      <option value="">Şube Seçiniz</option>
+                      <option value="A">A Şubesi</option>
+                      <option value="B">B Şubesi</option>
+                      <option value="C">C Şubesi</option>
+                      <option value="D">D Şubesi</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Ders Saati ve Süre */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ders Saati *
+                    </label>
+                    <select
+                      value={newLessonData.timeSlot}
+                      onChange={(e) => setNewLessonData({ ...newLessonData, timeSlot: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    >
+                      <option value="">Saat Seçiniz</option>
+                      <option value="08:00">08:00 - 1. Ders</option>
+                      <option value="08:50">08:50 - 2. Ders</option>
+                      <option value="09:40">09:40 - 3. Ders</option>
+                      <option value="10:40">10:40 - 4. Ders</option>
+                      <option value="11:30">11:30 - 5. Ders</option>
+                      <option value="12:20">12:20 - 6. Ders</option>
+                      <option value="13:20">13:20 - 7. Ders</option>
+                      <option value="14:10">14:10 - 8. Ders</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ders Süresi (Dakika)
+                    </label>
+                    <input
+                      type="number"
+                      value={newLessonData.duration}
+                      onChange={(e) => setNewLessonData({ ...newLessonData, duration: parseInt(e.target.value) || 60 })}
+                      min="30"
+                      max="120"
+                      step="10"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      placeholder="60"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end space-x-4 p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+                <button
+                  onClick={() => {
+                    setShowAddLessonModal(false);
+                    setNewLessonData({
+                      name: '',
+                      description: '',
+                      startDate: '',
+                      endDate: '',
+                      instructor: '',
+                      gradeLevel: '',
+                      section: '',
+                      timeSlot: '',
+                      duration: 60
+                    });
+                  }}
+                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors font-medium"
+                  disabled={addLessonLoading}
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleAddLesson}
+                  disabled={addLessonLoading || !newLessonData.name || !newLessonData.startDate || !newLessonData.endDate || !newLessonData.instructor || !newLessonData.gradeLevel || !newLessonData.section || !newLessonData.timeSlot}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                >
+                  {addLessonLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Ekleniyor...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-5 w-5 mr-2" />
+                      Ders Ekle
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -8,9 +8,10 @@ import jwt from 'jsonwebtoken';
 
 export default async function handler(req: Request, res: Response) {
   // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL || 'http://localhost:5173');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
@@ -60,13 +61,9 @@ export default async function handler(req: Request, res: Response) {
       .eq('user_id', userData.id)
       .single();
 
-    // Generate JWT token
+    // JWT token oluştur
     const token = jwt.sign(
-      { 
-        id: userData.id, 
-        email: userData.email, 
-        role: userData.role 
-      },
+      { id: userData.id, email: userData.email, role: userData.role || 'student' },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );

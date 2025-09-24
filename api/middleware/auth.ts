@@ -4,7 +4,7 @@
  */
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { supabase } from '../config/supabase';
+import { supabase } from '../lib/supabase';
 
 // Extend Request interface to include user
 declare global {
@@ -25,59 +25,41 @@ declare global {
  * Authentication middleware
  * Validates JWT token and adds user to request object
  */
-export const authenticateToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const authenticateToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
+    }
+
+    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const decoded = jwt.verify(token, jwtSecret) as any;
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'No token provided' });
-      return;
-    }
-
-    const token = authHeader.substring(7);
-
-    // Verify JWT token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
-
-    if (!decoded || !decoded.id) {
-      res.status(401).json({ error: 'Invalid token' });
-      return;
-    }
-
-    // Get user details from database
-    const { data: userData, error: userError } = await supabase
+    // Get user from database
+    const { data: userData, error } = await supabase
       .from('users')
-      .select('id, email, role')
+      .select('id, email, role, is_active')
       .eq('id', decoded.id)
       .eq('is_active', true)
       .single();
-
-    if (userError || !userData) {
-      res.status(401).json({ error: 'User not found' });
-      return;
+    
+    if (error || !userData) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
-    // Get profile data
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('first_name, last_name')
-      .eq('user_id', userData.id)
-      .single();
-
     // Add user to request object
-    req.user = {
-      ...userData,
-      first_name: profileData?.first_name,
-      last_name: profileData?.last_name
+    (req as any).user = {
+      id: userData.id,
+      email: userData.email,
+      role: userData.role || 'student'
     };
+
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ error: 'Invalid or expired token' });
+    return res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
 

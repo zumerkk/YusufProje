@@ -12722,3 +12722,5 @@
 [2025-09-24T12:10:13.555Z] WARN: Slow request detected: POST /api/payment/mock-process - 3045ms
 [2025-09-24T12:12:57.597Z] WARN: Slow request detected: POST /api/payment/mock-process - 3488ms
 [2025-09-24T13:35:45.689Z] WARN: Slow request detected: GET /api/reports/dashboard/stats - 521132ms
+[2025-09-24T21:47:25.244Z] WARN: Slow request detected: POST /api/auth/login - 2023ms
+[2025-09-24T21:55:46.686Z] WARN: Slow request detected: POST /api/payment/mock-process - 3625ms

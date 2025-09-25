@@ -7,15 +7,59 @@
       "use": "@vercel/static-build"
     },
     {
-      "src": "api/**/*.ts",
+      "src": "api/auth.ts",
       "use": "@vercel/node"
     },
     {
-      "src": "api/**/*.js",
+      "src": "api/admin.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/teacher.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/student.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/payment.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/reports.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/packages.ts",
       "use": "@vercel/node"
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth"
+    },
+    {
+      "source": "/api/admin/(.*)",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/api/teacher/(.*)",
+      "destination": "/api/teacher"
+    },
+    {
+      "source": "/api/student/(.*)",
+      "destination": "/api/student"
+    },
+    {
+      "source": "/api/payment/(.*)",
+      "destination": "/api/payment"
+    },
+    {
+      "source": "/api/reports/(.*)",
+      "destination": "/api/reports"
+    },
     {
       "source": "/((?!api).*)",
       "destination": "/index.html"

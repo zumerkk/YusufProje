@@ -50,6 +50,7 @@ export default async function handler(req: Request, res: Response) {
     const isValidPassword = await bcrypt.compare(password, userData.password_hash);
     
     if (!isValidPassword) {
+      console.log('❌ Invalid password for:', email);
       res.status(401).json({ error: 'Invalid credentials' });
       return;
     }
